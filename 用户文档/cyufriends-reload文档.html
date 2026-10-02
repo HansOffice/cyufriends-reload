@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CyuFriends-Reload 使用文档</title>
+  <style>
+    :root {
+      --ink: #111827;
+      --text: #334155;
+      --muted: #64748b;
+      --line: #d8e1eb;
+      --soft: #f7fafc;
+      --panel: #ffffff;
+      --blue: #0891b2;
+      --cyan: #06b6d4;
+      --aqua: #22d3ee;
+      --green: #10b981;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --code: #0f172a;
+      --shadow: 0 18px 42px rgba(15, 23, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: linear-gradient(180deg, #eef7fb 0, #f8fafc 460px, #ffffff 900px);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      line-height: 1.75;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    code {
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f8fcfd;
+      color: #0e7490;
+      font-family: Consolas, "JetBrains Mono", monospace;
+      font-size: .94em;
+    }
+
+    pre {
+      margin: 14px 0 0;
+      padding: 18px;
+      border-radius: 8px;
+      background: var(--code);
+      color: #eef6fb;
+      overflow: auto;
+      font-family: Consolas, "JetBrains Mono", monospace;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    pre code {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    .page {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 34px;
+      width: min(1220px, calc(100% - 34px));
+      margin: 0 auto;
+      padding: 34px 0 70px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 18px;
+      height: calc(100vh - 36px);
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: var(--shadow);
+      overflow: auto;
+    }
+
+    .brand {
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 16px;
+    }
+
+    .brand strong {
+      display: block;
+      color: var(--ink);
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .nav-title {
+      margin: 16px 0 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .nav a {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 7px;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .nav a:hover {
+      background: #e9f7fb;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .content { min-width: 0; }
+
+    .hero {
+      padding: 38px 34px;
+      border: 1px solid #cfe5ee;
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(8, 145, 178, .13), rgba(34, 211, 238, .08)),
+        #fbfeff;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #0e7490;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 46px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 850px;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .meta span {
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .72);
+      color: #334155;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    section {
+      scroll-margin-top: 24px;
+      padding: 34px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    section:last-child { border-bottom: 0; }
+
+    h2 {
+      margin: 0 0 14px;
+      color: var(--ink);
+      font-size: 28px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h2::after {
+      content: "";
+      display: block;
+      width: 44px;
+      height: 3px;
+      margin-top: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--blue), var(--aqua));
+    }
+
+    h3 {
+      margin: 24px 0 8px;
+      color: var(--ink);
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    h4 {
+      margin: 0 0 8px;
+      color: var(--ink);
+      font-size: 17px;
+    }
+
+    p {
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+
+    ul, ol {
+      margin: 10px 0 0;
+      padding-left: 22px;
+      color: var(--muted);
+    }
+
+    li { margin: 5px 0; }
+
+    table {
+      width: 100%;
+      margin: 14px 0 0;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--panel);
+      font-size: 15px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f8fb;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, 1fr); }
+
+    .card {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, .04);
+    }
+
+    .card p:last-child { margin-bottom: 0; }
+
+    .note {
+      margin: 14px 0 0;
+      padding: 13px 15px;
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      background: #ecfafd;
+      color: #155e75;
+    }
+
+    .note.green {
+      border-left-color: var(--green);
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .note.orange {
+      border-left-color: var(--orange);
+      background: #fffbeb;
+      color: #92400e;
+    }
+
+    .note.red {
+      border-left-color: var(--red);
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+      counter-reset: step;
+    }
+
+    .step {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      margin-bottom: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--aqua));
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .footer {
+      padding-top: 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .page { display: block; }
+      .sidebar {
+        position: static;
+        height: auto;
+        margin-bottom: 18px;
+      }
+      .nav { columns: 2; }
+      .grid, .grid.two, .steps, .meta { grid-template-columns: 1fr; }
+      h1 { font-size: 38px; }
+    }
+
+    @media (max-width: 620px) {
+      .nav { columns: 1; }
+      .hero { padding: 26px 20px; }
+      h1 { font-size: 32px; }
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <aside class="sidebar">
+      <div class="brand">
+        <strong>CyuFriends-Reload</strong>
+        <span>好友与轻社交系统文档</span>
+      </div>
+      <nav class="nav">
+        <div class="nav-title">快速开始</div>
+        <a href="#intro">插件介绍</a>
+        <a href="#install">版本与选用</a>
+        <a href="#proxy">跨服代理网桥</a>
+        <a href="#flow">核心交互动线</a>
+        <div class="nav-title">社交功能</div>
+        <a href="#modules">模块架构</a>
+        <a href="#friend">好友与传送</a>
+        <a href="#groups">分组与标签</a>
+        <a href="#chat">私聊与留言</a>
+        <a href="#social">动态与留言墙</a>
+        <a href="#profile">资料与生日</a>
+        <div class="nav-title">配置与管理</div>
+        <a href="#storage">存储与基础设置</a>
+        <a href="#limits">权限档位阶梯</a>
+        <a href="#commands">命令与权限</a>
+        <a href="#admin">管理员运维</a>
+        <a href="#papi">PlaceholderAPI</a>
+        <a href="#gui">菜单与自定义图标</a>
+        <a href="#advice">上线建议</a>
+      </nav>
+    </aside>
+
+    <div class="content">
+      <header class="hero" id="intro">
+        <p class="eyebrow">CyuFriends-Reload Wiki</p>
+        <h1>CyuFriends-Reload 使用文档</h1>
+        <p class="lead">
+          CyuFriends-Reload 是面向现代 Minecraft 服务器的高性能好友与轻社交系统，提供好友申请、关系管理、分组标签、好友传送、好友私聊、离线留言中心、动态广场、留言墙主页、个人资料、生日提醒以及社交通知
+        </p>
+        <p class="lead">
+          插件既可以作为单一子服的完整玩家社交底座，也可以接入配套跨服代理端（支持 Velocity 与 BungeeCord），在多服架构下无缝共享好友在线状态、跨服私聊与跨服传送
+        </p>
+        <div class="meta">
+          <span>版本 1.1.6</span>
+          <span>好友关系与传送</span>
+          <span>分组与自选标签</span>
+          <span>私聊与离线留言</span>
+          <span>动态圈与留言墙</span>
+          <span>交流群 331910315</span>
+        </div>
+      </header>
+
+      <section id="install">
+        <h2>版本与选用</h2>
+        <p>当前服务端好友核心版本为 <code>1.1.6</code>，跨服代理端配套版本为 <code>1.0.3</code>；根据服务器平台选用对应 Jar 文件放入 <code>plugins</code> 目录</p>
+        <div class="grid">
+          <div class="card">
+            <h4>Paper / Purpur 后端</h4>
+            <p>使用 <code>cyufriends-reload-paper-1.1.6.jar</code>，适用于 1.20+ 及 1.21+ 的 Paper、Purpur 等标准服务端</p>
+          </div>
+          <div class="card">
+            <h4>Folia 原生后端</h4>
+            <p>使用 <code>cyufriends-reload-folia-1.1.6.jar</code>，基于区域调度（RegionScheduler）实现线程安全，杜绝主线程卡顿</p>
+          </div>
+          <div class="card">
+            <h4>离线/轻量环境</h4>
+            <p>若服务器无法访问 Maven 官方库下载运行依赖，可使用全依赖打包版本 <code>cyufriends-reload-paper-1.1.6-legacy-all.jar</code></p>
+          </div>
+        </div>
+        <div class="note">
+          Paper 与 Folia 服务端请严格选择对应的专版 Jar，不要混放；软依赖推荐配合 <code>cyuid-reload</code> 使用，可获得持久稳定的玩家跨服唯一身份支持
+        </div>
+
+        <h3>核心生成文件速查</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>文件 / 路径</th>
+              <th>主要功能</th>
+              <th>常用修改项目</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>config.yml</code></td>
+              <td>主配置文件</td>
+              <td>数据库连接、各模块开关、默认好友上限、跨服参数、Debug 开关</td>
+            </tr>
+            <tr>
+              <td><code>messages.yml</code></td>
+              <td>玩家提示与反馈文案</td>
+              <td>所有聊天提示、动作反馈、通知前缀</td>
+            </tr>
+            <tr>
+              <td><code>sounds.yml</code></td>
+              <td>交互音效配置</td>
+              <td>好友申请、接收私聊、操作成功与失败时的音效反馈</td>
+            </tr>
+            <tr>
+              <td><code>gui/*.yml</code></td>
+              <td>GUI 菜单配置</td>
+              <td>好友列表、申请列表、个人资料、动态广场等界面的布局与图标</td>
+            </tr>
+            <tr>
+              <td><code>Permissions.yml</code></td>
+              <td>权限节点速查表</td>
+              <td>普通玩家功能、VIP 扩容档位与管理员节点参考</td>
+            </tr>
+            <tr>
+              <td><code>Placeholder.yml</code></td>
+              <td>PAPI 变量参考清单</td>
+              <td>计分板、聊天格式与外部菜单可引用的变量字典</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="proxy">
+        <h2>跨服代理网桥</h2>
+        <p>当服务器采用群组跨服架构时，需在代理端（Velocity 或 BungeeCord）安装配套代理插件，并在各子服 <code>config.yml</code> 中启用 <code>proxy</code> 模块</p>
+
+        <div class="grid two">
+          <div class="card">
+            <h4>代理端文件与部署</h4>
+            <p>Velocity 代理端放置 <code>cyufriends-reload-proxy-velocity-1.0.3.jar</code></p>
+            <p>BungeeCord 代理端放置 <code>cyufriends-reload-proxy-bungee-1.0.3.jar</code></p>
+          </div>
+          <div class="card">
+            <h4>后端子服部署</h4>
+            <p>每个 Paper/Purpur 子服放置 <code>cyufriends-reload-paper-1.1.6.jar</code></p>
+            <p>每个 Folia 子服放置 <code>cyufriends-reload-folia-1.1.6.jar</code></p>
+          </div>
+        </div>
+
+        <h3>代理端配置示例 (proxy.yml)</h3>
+        <pre><code>proxy:
+  server-id: "proxy"
+  channel: "cyufriends:gateway"
+  protocol-version: 1
+
+security:
+  secret: "change-this-secret"
+  # 允许的消息时间误差 (秒)，填 0 或负数可关闭时间误差校验
+  max-clock-skew-seconds: 15
+  deduplication-ttl-seconds: 60
+
+transport:
+  request-timeout-seconds: 15
+  execute-timeout-seconds: 20
+
+logging:
+  debug: false</code></pre>
+
+        <h3>子服配置示例 (config.yml)</h3>
+        <pre><code>modules:
+  proxy: true
+
+proxy:
+  enabled: true
+  server-id: "survival-1"            # 对应代理端中本子服的注册名称
+  channel: "cyufriends:gateway"      # 跨服通信频道名
+  protocol-version: 1                # 协议版本，所有端必须一致
+  secret: "change-this-secret"       # 共享密钥，所有端必须一致
+  max-clock-skew-seconds: 15         # 允许的消息时间误差（秒），填 0 或负数可关闭时间误差校验
+  direct-message-timeout-seconds: 8  # 跨服私聊回执超时（秒）
+  teleport-precheck-timeout-seconds: 6 # 跨服传送预检超时（秒）
+  presence-refresh-seconds: 60       # 在线状态低频刷新</code></pre>
+
+        <div class="note orange">
+          <strong>时钟漂移与排障说明</strong><br>
+          在 Windows 宿主机搭配 WSL2、Docker 或虚拟机等混合组网环境下，各系统之间的系统时钟经常存在超过 15 秒的偏差；若控制台出现时钟偏差告警，可校准各机器时间，或者将 <code>max-clock-skew-seconds</code> 设置为 <code>0</code> 彻底关闭时钟校验，此时插件会自动使用 120 秒安全去重窗口保障跨服消息不被重复消费
+        </div>
+      </section>
+
+      <section id="flow">
+        <h2>核心交互动线</h2>
+        <p>插件整体以极简直观的 GUI 为核心入口，同时为习惯指令的高级玩家保留了纯粹的命令体系</p>
+
+        <div class="steps">
+          <div class="step">
+            <h4>发送好友申请</h4>
+            <p>玩家通过 <code>/friend add &lt;玩家&gt;</code> 或在 GUI 搜索、在线玩家列表点击头像发出申请，可附带简短留言</p>
+          </div>
+          <div class="step">
+            <h4>处理好友申请</h4>
+            <p>被申请方通过 <code>/friend requests</code> 或点击聊天栏交互按钮，即可快速同意或拒绝好友申请</p>
+          </div>
+          <div class="step">
+            <h4>关系互动与传送</h4>
+            <p>成为好友后，双方可发起好友传送、互相私聊、查看个人主页、设置个性化备注、标签与专属分组</p>
+          </div>
+          <div class="step">
+            <h4>社区社交广场</h4>
+            <p>玩家通过 <code>/status</code> 分享服务器日常动态，通过 <code>/wall</code> 给好友主页留言，互赞互动沉淀社区关系</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="modules">
+        <h2>模块架构</h2>
+        <p>所有功能采用高内聚的模块化开关设计，服主可根据自己服务器的玩法偏好按需启闭：</p>
+        <pre><code>modules:
+  proxy: false    # 跨服通信模块（单服模式请保持 false）
+  friend: true    # 好友核心模块（必须开启，关闭后社交相关子功能随之停用）
+  group: true     # 好友分组模块
+  chat: true      # 好友私聊与留言模块
+  social: true    # 动态圈与留言墙模块
+  profile: true   # 个人资料与主页模块</code></pre>
+
+        <table>
+          <thead>
+            <tr>
+              <th>模块名称</th>
+              <th>核心职责</th>
+              <th>关闭影响</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>friend</code></td>
+              <td>好友关系、申请流转、黑名单、好友传送与好友列表 GUI</td>
+              <td>好友功能完全隐藏，其他社交子模块自动降级停止</td>
+            </tr>
+            <tr>
+              <td><code>group</code></td>
+              <td>自定义分组、分组成员管理、批量移动好友</td>
+              <td>好友菜单不显示分组列表，好友仅保留平铺展示</td>
+            </tr>
+            <tr>
+              <td><code>chat</code></td>
+              <td>好友私聊、快速回复、离线留言中心</td>
+              <td>隐藏 <code>/friend msg</code> 指令与未读消息箱</td>
+            </tr>
+            <tr>
+              <td><code>social</code></td>
+              <td>动态圈发布、动态点赞评论、留言墙与留言审核机制</td>
+              <td>隐藏 <code>/status</code> 与 <code>/wall</code> 入口</td>
+            </tr>
+            <tr>
+              <td><code>profile</code></td>
+              <td>玩家个人主页、个性签名、生日提醒与社交通知设置</td>
+              <td>隐藏个人主页展示与生日祝福广播</td>
+            </tr>
+            <tr>
+              <td><code>proxy</code></td>
+              <td>Velocity / Bungee 跨服消息路由与在线状态同步</td>
+              <td>仅在当前单服内部结算数据，不广播跨服数据包</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="friend">
+        <h2>好友与传送</h2>
+        <p>好友关系包含完整的申请、审批、拉黑、删除与传送协同流程：</p>
+
+        <div class="grid two">
+          <div class="card">
+            <h4>好友申请与冷却</h4>
+            <p>支持玩家名或 UID 查找；自动阻断向 Citizens NPC 发送申请</p>
+            <p>服主可在 <code>requestLimits</code> 配置每日最大申请次数与两次申请间的冷却时间</p>
+          </div>
+          <div class="card">
+            <h4>好友传送与世界管控</h4>
+            <p>支持直接传送、确认后传送与拒绝传送三种个人偏好模式</p>
+            <p>服主可在 <code>disabledWorlds</code> 列表中填入副本世界、PVP 竞技场等禁用传送区域</p>
+          </div>
+        </div>
+
+        <h3>好友传送常用配置</h3>
+        <pre><code>settings:
+  tp-request-timeout-seconds: 60  # 传送确认请求保留时间 (秒)
+disabledWorlds:
+  - "pvp_arena"
+  - "dungeon_world"</code></pre>
+      </section>
+
+      <section id="groups">
+        <h2>分组与标签</h2>
+        <p>分组适合做“公会伙伴 / 现实朋友 / 组队队友”等长期大类划分；标签适合做“建筑师 / 红石专家 / 锻造师”等灵活标记：</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>能力项</th>
+              <th>主要入口</th>
+              <th>应用说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>分组管理</td>
+              <td><code>/friend group</code></td>
+              <td>创建、重命名、删除自定义分组，查看组内好友</td>
+            </tr>
+            <tr>
+              <td>批量移动</td>
+              <td><code>/friend groupmoveall</code></td>
+              <td>将指定组内的所有成员一键批量归并到目标分组</td>
+            </tr>
+            <tr>
+              <td>分组规则</td>
+              <td><code>/friend grouprules</code></td>
+              <td>针对特定分组单独配置专属传送权限、上线通知与广播策略</td>
+            </tr>
+            <tr>
+              <td>好友标签</td>
+              <td><code>/friend tag &lt;玩家&gt; &lt;标签&gt;</code></td>
+              <td>为好友添加灵活短文本标签，便于分类查找</td>
+            </tr>
+            <tr>
+              <td>主标签与颜色</td>
+              <td><code>/friend tagcolor</code></td>
+              <td>在 GUI 中为标签定制专属展示颜色并在聊天栏中高亮</td>
+            </tr>
+            <tr>
+              <td>标签筛选</td>
+              <td><code>/friend tagfilter</code></td>
+              <td>在好友菜单中按标签快速筛选目标玩家</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="chat">
+        <h2>私聊与留言</h2>
+        <p>私聊通道仅在已确立好友关系的玩家之间开放，既保证社交私密性，又避免公共骚扰：</p>
+
+        <div class="grid">
+          <div class="card">
+            <h4>独立指令空间</h4>
+            <p>使用 <code>/friend msg</code> 与 <code>/friend reply</code>，绝不占用服务器原有基础指令 <code>/msg</code> 或 <code>/tell</code></p>
+          </div>
+          <div class="card">
+            <h4>离线留言中心</h4>
+            <p>目标好友离线时自动存为离线留言，好友上线后通过通知中心或 <code>/friend messages</code> 查阅</p>
+          </div>
+          <div class="card">
+            <h4>黑名单聊天过滤</h4>
+            <p>被拉黑玩家的公屏消息会被自动静默过滤，管理员拥有专属绕过权限节点</p>
+          </div>
+        </div>
+
+        <h3>私聊参数配置</h3>
+        <pre><code>messageCooldown: 60               # 私聊发送冷却时间 (秒)
+messageExpiration: 604800         # 离线留言保留时长 (秒，0 为永久保存)
+chatFilter:
+  hide-blocked-public-chat: true  # 自动隐藏黑名单玩家的公屏消息
+  bypass-permission: "cyufriends.bypass.chatfilter"</code></pre>
+      </section>
+
+      <section id="social">
+        <h2>动态与留言墙</h2>
+        <p>动态类似于服内玩家的朋友圈，留言墙则是挂在玩家个人主页上的寄语板，两者均支持互动与审核：</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>系统</th>
+              <th>主要能力</th>
+              <th>管理与控制</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>动态广场 (Status)</td>
+              <td>发布动态短文、公开范围设置（公开/仅好友/私密）、评论、点赞与置顶</td>
+              <td>支持配置最大保留动态条数、发布冷却与评论冷却</td>
+            </tr>
+            <tr>
+              <td>主页留言墙 (Wall)</td>
+              <td>给目标玩家主页发布留言、留言回复、点赞、置顶与个人清理</td>
+              <td>可配置发布/回复冷却，支持开启留言审核机制（墙主先审后放行）</td>
+            </tr>
+            <tr>
+              <td>关系时间线</td>
+              <td>自动记录私聊往来、动态互动与留言互动</td>
+              <td>在好友资料页直观查看与该好友的历史互动足迹</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="profile">
+        <h2>资料与生日</h2>
+        <p>玩家可个性化打理自己的社交名片，向全服展示自己的个性签名与生日信息：</p>
+
+        <div class="grid two">
+          <div class="card">
+            <h4>个人签名</h4>
+            <p>通过 <code>/bio &lt;文本&gt;</code> 设置个性简介，配置可限定签名最大长度与列表预览字数</p>
+          </div>
+          <div class="card">
+            <h4>生日提醒与祝福</h4>
+            <p>通过 <code>/birthday &lt;yyyy-MM-dd&gt;</code> 绑定生日，可配置允许修改次数与定时全服生日广播</p>
+          </div>
+        </div>
+
+        <h3>生日与签名参数</h3>
+        <pre><code>birthdayReminder:
+  enabled: true
+  checkTime: "00:05"              # 每日检查并广播的时间
+  advance-days: [0, 1]            # 当天及提前 1 天发出提醒
+profile:
+  bio-max-length: 64              # 签名最大字数
+  bio-preview-length: 32          # 列表预览字数</code></pre>
+      </section>
+
+      <section id="storage">
+        <h2>存储与基础设置</h2>
+        <p>数据层支持 <code>SQLite</code> 与 <code>MySQL</code> 两种存储引擎：</p>
+        <pre><code>database:
+  type: SQLite                    # 单服推荐 SQLite，跨服环境必须统一配置为 MySQL
+  host: localhost
+  port: 3306
+  database: cyufriends
+  username: root
+  password: ""
+
+settings:
+  request-cooldown: 60            # 好友申请默认冷却 (秒)
+  text-input-timeout-seconds: 90  # 聊天栏输入模式等待超时 (秒)
+  tp-request-timeout-seconds: 60  # 传送确认超时 (秒)
+  max-friends-default: 50         # 默认最大好友数量</code></pre>
+
+        <div class="note">
+          SQLite 数据库文件统一平滑收纳在插件目录下的 <code>data/data.db</code> 中，启动时若发现旧版根目录数据会自动完成无损迁移
+        </div>
+      </section>
+
+      <section id="limits">
+        <h2>权限档位阶梯</h2>
+        <p>服主可通过权限节点为 VIP、赞助者或管理团队配置进阶的社交特权与限额：</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>权限档位类型</th>
+              <th>配置路径示例</th>
+              <th>对应权限节点</th>
+              <th>控制项</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>好友申请配额</td>
+              <td><code>requestLimits.vip</code></td>
+              <td><code>cyufriends.request.vip</code></td>
+              <td>每日申请次数限制、申请冷却间隔</td>
+            </tr>
+            <tr>
+              <td>动态圈配额</td>
+              <td><code>statusLimits.vip</code></td>
+              <td><code>cyufriends.status.vip</code></td>
+              <td>最大保留动态数、发动态冷却、评论冷却</td>
+            </tr>
+            <tr>
+              <td>留言墙配额</td>
+              <td><code>wallLimits.vip</code></td>
+              <td><code>cyufriends.wall.vip</code></td>
+              <td>最大保留留言数、发留言冷却、回复冷却</td>
+            </tr>
+            <tr>
+              <td>生日修改权限</td>
+              <td><code>birthdayLimits.vip</code></td>
+              <td><code>cyufriends.birthday.vip</code></td>
+              <td>一年内允许重新修改生日的次数上限</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="commands">
+        <h2>命令与权限</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>指令</th>
+              <th>所需权限</th>
+              <th>详细说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/friend</code></td>
+              <td><code>cyufriends.use</code></td>
+              <td>好友系统主界面入口（简写别名：<code>/cf</code>、<code>/cfs</code>、<code>/cyuf</code>）</td>
+            </tr>
+            <tr>
+              <td><code>/friend add &lt;玩家&gt;</code></td>
+              <td><code>cyufriends.use</code></td>
+              <td>向目标玩家发起好友申请</td>
+            </tr>
+            <tr>
+              <td><code>/friend msg &lt;好友&gt; &lt;内容&gt;</code></td>
+              <td><code>cyufriends.command.msg</code></td>
+              <td>向好友发送私聊消息（离线则存为未读留言）</td>
+            </tr>
+            <tr>
+              <td><code>/friend reply &lt;内容&gt;</code></td>
+              <td><code>cyufriends.command.reply</code></td>
+              <td>快速回复最近一位与自己私聊的好友</td>
+            </tr>
+            <tr>
+              <td><code>/friend messages</code></td>
+              <td><code>cyufriends.command.messages</code></td>
+              <td>打开未读离线留言消息中心</td>
+            </tr>
+            <tr>
+              <td><code>/status</code></td>
+              <td><code>cyufriends.command.status</code></td>
+              <td>打开动态广场面板，发布或查阅全服动态</td>
+            </tr>
+            <tr>
+              <td><code>/wall</code></td>
+              <td><code>cyufriends.command.wall</code></td>
+              <td>打开个人留言墙或给其他玩家留言</td>
+            </tr>
+            <tr>
+              <td><code>/bio &lt;内容&gt;</code></td>
+              <td><code>cyufriends.command.bio</code></td>
+              <td>修改个人主页签名</td>
+            </tr>
+            <tr>
+              <td><code>/birthday &lt;日期&gt;</code></td>
+              <td><code>cyufriends.command.birthday</code></td>
+              <td>绑定或查看个人生日</td>
+            </tr>
+            <tr>
+              <td><code>/settings</code></td>
+              <td><code>cyufriends.command.settings</code></td>
+              <td>打开个人社交隐私与通知偏好设置</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="admin">
+        <h2>管理员运维</h2>
+        <p>管理员功能集成了诊断、缓存刷新、模块状态检查与安全重载，均要求 <code>cyufriends.admin</code> 权限：</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>管理命令</th>
+              <th>用途说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/friend reload</code></td>
+              <td>安全重载配置、语言、音效和 GUI 菜单；若配置出错会自动回滚保留旧运行时</td>
+            </tr>
+            <tr>
+              <td><code>/friend admin inspect &lt;玩家&gt;</code></td>
+              <td>全景透视玩家 UID、在线节点、好友总数、黑名单、待审留言及最近互动记录</td>
+            </tr>
+            <tr>
+              <td><code>/friend admin rebuild &lt;玩家&gt;</code></td>
+              <td>即时清空并重建指定玩家的数据缓存（在线立即重载，离线下次上线触发）</td>
+            </tr>
+            <tr>
+              <td><code>/friend admin cache</code></td>
+              <td>打印当前好友、申请、黑名单、私聊等各类内存缓存对象总数</td>
+            </tr>
+            <tr>
+              <td><code>/friend admin health</code></td>
+              <td>全项健康度体检：校验数据库连通、PAPI 挂载、代理通道及运行健康度</td>
+            </tr>
+            <tr>
+              <td><code>/friend admin proxy</code></td>
+              <td>查看跨服代理网桥的实时连接状态、收发包指标与在线节点目录</td>
+            </tr>
+            <tr>
+              <td><code>/friend admin moderation</code></td>
+              <td>查看全服待审核留言看板，支持一键批准或驳回违规内容</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="papi">
+        <h2>PlaceholderAPI</h2>
+        <p>插件原生注册 <code>cyufriends</code> 变量前缀，并向前兼容旧版 <code>friends</code> 前缀：</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>占位符变量</th>
+              <th>数据含义与返回值</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>%cyufriends_total_count%</code></td>
+              <td>当前玩家拥有的好友总数</td>
+            </tr>
+            <tr>
+              <td><code>%cyufriends_request_count%</code></td>
+              <td>当前玩家收到的待处理申请总数</td>
+            </tr>
+            <tr>
+              <td><code>%cyufriends_offline_messages_count%</code></td>
+              <td>当前玩家未读的离线留言条数</td>
+            </tr>
+            <tr>
+              <td><code>%cyufriends_daily_requests_remaining%</code></td>
+              <td>当前玩家今日剩余可发送的申请额度</td>
+            </tr>
+            <tr>
+              <td><code>%cyufriends_note_&lt;player&gt;%</code></td>
+              <td>当前玩家为指定好友设置的备注名</td>
+            </tr>
+            <tr>
+              <td><code>%cyufriends_group_&lt;player&gt;%</code></td>
+              <td>指定好友所在的自定义分组名</td>
+            </tr>
+            <tr>
+              <td><code>%cyufriends_is_friend_&lt;player&gt;%</code></td>
+              <td>判断指定玩家是否为好友（返回 是 / 否）</td>
+            </tr>
+            <tr>
+              <td><code>%cyufriends_birthday_&lt;player&gt;%</code></td>
+              <td>指定玩家的生日日期文本</td>
+            </tr>
+            <tr>
+              <td><code>%rel_cyufriends_is_friend%</code></td>
+              <td>双向关系变量：判断当前双方是否为好友</td>
+            </tr>
+            <tr>
+              <td><code>%rel_cyufriends_is_friend_bool%</code></td>
+              <td>双向关系变量：布尔值返回（true / false）</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="gui">
+        <h2>菜单与自定义图标</h2>
+        <p>所有界面均存放于 <code>gui/</code> 目录，纯数据驱动配置，无需编写代码即可深度定制：</p>
+
+        <div class="grid">
+          <div class="card">
+            <h4>外部物品桥接</h4>
+            <p>按钮材质全面兼容原版及 <code>ItemsAdder</code> (<code>ia:item</code>)、<code>Oraxen</code> (<code>ox:item</code>)、<code>Nexo</code> (<code>nexo:item</code>) 与 <code>CraftEngine</code> (<code>ce:item</code>)</p>
+          </div>
+          <div class="card">
+            <h4>资源包模型 (CMD)</h4>
+            <p>可直接指定 <code>custom_model_data: 10001</code>，或直接采用紧凑语法 <code>material: PAPER#10001</code></p>
+          </div>
+          <div class="card">
+            <h4>异步皮肤与防抖</h4>
+            <p>玩家头像支持本地缓存与 SkinsRestorer 异步加载，所有菜单按钮内建防抖保护，避免玩家手滑连点</p>
+          </div>
+        </div>
+
+        <div class="note">
+          若需开启空手 Shift + 右键玩家呼出快捷交互菜单，可在 <code>config.yml</code> 中配置 <code>interactionSettings.shiftRightClickMenu: true</code>
+        </div>
+
+        <h3>菜单动作语法速查</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 260px;">动作指令</th>
+              <th>执行效果与语法示例</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>[open] &lt;界面名&gt; [参数]</code></td>
+              <td>原生打开指定子界面，如 <code>[open] friends_list</code> 或 <code>[open] friend_profile %target_name%</code></td>
+            </tr>
+            <tr>
+              <td><code>[refresh]</code></td>
+              <td>原位静默刷新当前界面数据，不闪烁界面</td>
+            </tr>
+            <tr>
+              <td><code>[close]</code></td>
+              <td>关闭当前打开的界面</td>
+            </tr>
+            <tr>
+              <td><code>[actionbar] &lt;内容&gt;</code></td>
+              <td>向玩家物品栏上方发送 ActionBar 快捷提示，支持 MiniMessage 颜色渐变</td>
+            </tr>
+            <tr>
+              <td><code>[title] &lt;主标题&gt;[;&lt;副标题&gt;]</code></td>
+              <td>向玩家屏幕正中央发送大屏标题通知</td>
+            </tr>
+            <tr>
+              <td><code>[message] &lt;文本&gt;</code></td>
+              <td>向玩家聊天栏直接发送单条消息</td>
+            </tr>
+            <tr>
+              <td><code>[sound] &lt;音效&gt; [音量] [音调]</code></td>
+              <td>播放指定原版音效或 sounds.yml 预设别名，如 <code>[sound] UI_BUTTON_CLICK 1.0 1.2</code></td>
+            </tr>
+            <tr>
+              <td><code>[player] &lt;指令&gt;</code></td>
+              <td>以玩家自身身份执行指定指令（不带斜杠）</td>
+            </tr>
+            <tr>
+              <td><code>[console] &lt;指令&gt;</code></td>
+              <td>以控制台身份执行指令，支持 <code>%player%</code> 变量</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="advice">
+        <h2>上线建议</h2>
+        <div class="grid two">
+          <div class="card">
+            <h4>单服上线推荐</h4>
+            <p>单个子服或轻量社区直接保持 <code>proxy: false</code>，数据库使用默认 <code>SQLite</code> 即可，无需额外部署</p>
+          </div>
+          <div class="card">
+            <h4>群组网络推荐</h4>
+            <p>多子服跨服架构必须配置 MySQL 共享存储，各服保持相同的 <code>secret</code>，并确认代理端与后端 <code>server-id</code> 一一对应</p>
+          </div>
+        </div>
+        <div class="footer">
+          文档对应 CyuFriends-Reload 当前项目架构：1.1.6 服务端核心与 1.0.3 跨服代理端
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

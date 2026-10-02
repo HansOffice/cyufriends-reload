@@ -1,52 +1,70 @@
 # 欢迎使用 CyuFriends-Reload
-# MineBBS 主页：https://www.minebbs.com/members/hansoffice.59149/
-# QQ 交流群：331910315
+# MineBBS: https://www.minebbs.com/members/hansoffice.59149/
+# QQ群聊：331910315
 #
-# --- 常用权限 ---
+# --- 权限节点 ---
 # cyufriends.use   - 普通玩家功能
 # cyufriends.admin - 重载与管理功能
 #
-# --- 相关文件 ---
-# Permissions.yml - 完整权限节点
-# messages.yml    - 玩家提示与帮助文本
-# gui/*.yml       - 菜单布局、材质与动作
-# --- 调试日志 ---
-# 排查问题时临时开启，平时保持关闭
-# detail-level: 0 基础 / 1 关键过程 / 2 完整交互
+# --- 主要文件 ---
+# Permissions.yml - 完整权限节点速查
+# Placeholder.yml - 完整变量速查
+# messages.yml    - 提示与交互文本
+# sounds.yml      - 音效配置
+# gui/*.yml       - 界面布局与动作
+#
+# 配置版本，请不要手动降低版本号
+config-version: 116
+
+# 配置布局协议版本，结构调整时自增
+config-layout: 1
+
+# 调试日志，日常运行请保持关闭
 debugLog:
+  # 控制台调试输出开关
   enable-console-output: false
+  # 文件调试输出开关
   enable-file-output: false
+  # 调试日志输出路径
   file: "logs/debug.log"
+  # 详细级别：0 基础 / 1 关键过程 / 2 完整交互
   detail-level: 0
+  # 数据库慢查询阈值（毫秒）
   slow-db-ms: 150
 
-# --- 数据库存储 ---
-# type: SQLite 或 MySQL；单服保持 SQLite 即可
+# 数据库存储
 database:
+  # 存储类型：SQLite 或 MySQL，单服保持 SQLite 即可
   type: SQLite
+  # MySQL 主机地址
   host: localhost
+  # MySQL 端口
   port: 3306
+  # 数据库名称
   database: cyufriends
+  # 数据库用户名
   username: root
+  # 数据库密码
   password: ""
 
-# --- 基础设置 ---
+# 基础设置
 settings:
-  request-cooldown: 60            # 好友申请冷却兜底值；没给玩家权限档时走这里
-  text-input-timeout-seconds: 90  # GUI 聊天输入模式等待时长（秒）
-  tp-request-timeout-seconds: 60  # 需要确认的好友传送请求保留时长（秒）
-  max-friends-default: 50         # 默认最大好友数；没做权限加成时就按这个上限走
+  # 好友申请冷却兜底（秒），未配置权限组分档时生效
+  request-cooldown: 60
+  # 聊天栏输入模式等待超时（秒）
+  text-input-timeout-seconds: 90
+  # 需确认的好友传送请求保留时长（秒）
+  tp-request-timeout-seconds: 60
+  # 默认最大好友数量，无权限组加成时生效
+  max-friends-default: 50
 
-# --- GUI 头颅与自定义物品 ---
-# default-offline-head 为空时，将按插件默认离线头处理
-# 支持格式：
-# 1. 玩家名
-# 2. basehead-<Base64>
-# 3. url-<纹理地址>
-# 4. 纯纹理哈希
+# 界面头颅与分页样式
 gui:
+  # 默认离线头颅材质，为空时使用插件内置离线头，支持玩家名、Base64 或贴图哈希
   default-offline-head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDM0NGY5YmJiMzcwMWM3ZWVjZTAxODY0MmE3ODM3YzMzMzE1YWMzOTg4ZWUyYmZkZTk2ZTg3NzI0OTZlNzQ4NSJ9fX0="
-  head-cache-size: 512    # 静态头颅缓存上限；无需太大，推荐范围 128 ~ 1024
+  # 静态头颅缓存上限，推荐范围 128 ~ 1024
+  head-cache-size: 512
+  # 分页按钮处于第一页或最后一页时的禁用态样式
   pagination:
     disabled:
       enabled: true
@@ -61,39 +79,36 @@ gui:
         lore:
           - "<#8A96A8>当前页</#8A96A8> <#D7DEE8>%page%</#D7DEE8><#8A96A8>/</#8A96A8><#D7DEE8>%total_pages%</#D7DEE8>"
 
-# --- 进服摘要 ---
-# {onlineCount} = 在线好友数量
-# {unreadCount} = 未读留言数量
+# 玩家进服社交状态摘要提示
 joinChat:
+  # 进服摘要总开关
   enabled: true
+  # 摘要内容行列表，支持 MiniMessage 标签与 {onlineCount}、{unreadCount} 占位符
   lines:
     - "<#3A4352><st>                              </st></#3A4352>"
-    - "<#D7DEE8>欢迎回来，<#7DD3FC><bold>CyuFriends</bold></#7DD3FC> 已同步你的社交状态。</#D7DEE8>"
-    - "<#D7DEE8>在线好友 <#7DD3FC>{onlineCount}</#7DD3FC> 位，未读留言 <#7DD3FC>{unreadCount}</#7DD3FC> 条。</#D7DEE8>"
+    - "<#D7DEE8>欢迎回来，<#7DD3FC><bold>CyuFriends</bold></#7DD3FC> 已同步你的社交状态</#D7DEE8>"
+    - "<#D7DEE8>在线好友 <#7DD3FC>{onlineCount}</#7DD3FC> 位，未读留言 <#7DD3FC>{unreadCount}</#7DD3FC> 条</#D7DEE8>"
     - "<#3A4352><st>                              </st></#3A4352>"
 
-# --- 快捷交互 ---
-# 玩家空手 Shift + 右键其他玩家时，会弹出好友交互
-# 如果你怕和别的插件冲突，直接改成 false
+# 玩家快捷交互设置
 interactionSettings:
+  # 空手 Shift + 右键目标玩家唤起好友菜单
   shiftRightClickMenu: true
+  # 快捷交互防误触冷却（秒）
   cooldownSeconds: 3
+  # 快捷交互音效标识
   sound: quick-interact
 
-# --- 禁止好友传送进入的世界 ---
-# 这里填世界名
-# 填进去的世界，好友传送会直接失败
-# 不需要限制就留空
+# 禁止好友传送的世界名称列表
 disabledWorlds: []
 
-# --- 好友申请限制 ---
-# 如果玩家有 cyufriends.request.vip，就会用 vip 这一档
-# 如果你把 vip 改成 premium，那权限节点也要跟着改成 cyufriends.request.premium
-# 你可以继续往下加 mvp、sponsor、legend 之类任意组名，不只限于 vip / svip
+# 好友申请权限组限制，对应权限 cyufriends.request.<组名>
 requestLimits:
   default:
-    daily: 20         # 每日最多发送多少次好友申请；0 表示不限制
-    cooldown: 60      # 两次好友申请之间的冷却（秒）
+    # 每日申请次数上限，0 为不限制
+    daily: 20
+    # 两次申请之间的冷却时间（秒）
+    cooldown: 60
   vip:
     daily: 35
     cooldown: 40
@@ -101,35 +116,34 @@ requestLimits:
     daily: 60
     cooldown: 20
 
-# --- 好友申请附言 ---
-# max-length    = 玩家最多能写多长
-# preview-length = 菜单和聊天里最多显示多长，防止太长刷屏
+# 好友申请附言字数限制
 requestNotes:
+  # 申请附言最大字符数
   max-length: 48
+  # 界面与聊天栏中的附言预览字数
   preview-length: 24
 
-# --- 私聊与离线留言 ---
-# messageCooldown   = 私聊发送冷却（秒）
-# messageExpiration = 离线留言保留时间（秒）；0 表示不自动清理
-# 604800 秒就是 7 天
+# 私聊发送冷却（秒）
 messageCooldown: 60
+
+# 离线留言保留时长（秒），604800 为 7 天，0 为永久保留
 messageExpiration: 604800
 
-# --- 黑名单聊天过滤 ---
+# 黑名单公共聊天过滤
 chatFilter:
-  hide-blocked-public-chat: true  # 拉黑后，不再看到对方的公共聊天
+  # 拉黑后是否自动屏蔽对方在公共频道的发言
+  hide-blocked-public-chat: true
+  # 免除屏蔽的权限节点
   bypass-permission: "cyufriends.bypass.chatfilter"
 
-# --- 动态限制 ---
-# 如果玩家有 cyufriends.status.vip，就会用 vip 这一档
-# 你可以继续往下加 mvp、sponsor、legend 之类任意组名
-# maxStatuses      = 最多保留多少条动态
-# publishCooldown  = 发布动态冷却
-# commentCooldown  = 评论动态冷却
+# 动态权限组限制，对应权限 cyufriends.status.<组名>
 statusLimits:
   default:
+    # 个人动态保留条数上限
     maxStatuses: 20
+    # 发布动态冷却时间（秒）
     publishCooldown: 60
+    # 评论动态冷却时间（秒）
     commentCooldown: 15
   vip:
     maxStatuses: 30
@@ -140,16 +154,14 @@ statusLimits:
     publishCooldown: 20
     commentCooldown: 5
 
-# --- 留言墙限制 ---
-# 如果玩家有 cyufriends.wall.vip，就会用 vip 这一档
-# 你可以继续往下加 mvp、sponsor、legend 之类任意组名
-# maxMessages   = 单个留言墙最多保留多少条留言
-# postCooldown  = 发布留言冷却
-# replyCooldown = 评论留言冷却
+# 留言墙权限组限制，对应权限 cyufriends.wall.<组名>
 wallLimits:
   default:
+    # 单个留言墙保留条数上限
     maxMessages: 20
+    # 发布留言冷却时间（秒）
     postCooldown: 60
+    # 回复留言冷却时间（秒）
     replyCooldown: 15
   vip:
     maxMessages: 30
@@ -160,133 +172,129 @@ wallLimits:
     postCooldown: 20
     replyCooldown: 5
 
-# --- 留言墙权限 ---
-# default-visibility:
-# public  = 所有人可见
-# friends = 仅好友可见
-# private = 仅墙主可见
-# 不懂这段就保持默认
-# 默认这一套就是“好友才能留言和评论，别人不乱写墙”
+# 留言墙权限与访问控制
 wallPermissions:
+  # 默认可见度：public (所有人可见) / friends (仅好友可见) / private (仅墙主可见)
   default-visibility: public
-  view-requires-friend: false    # 查看留言墙是否必须先成为好友
-  post-requires-friend: true     # 发布留言是否必须先成为好友
-  comment-requires-friend: true  # 评论留言是否必须先成为好友
-  like-requires-friend: false    # 点赞留言是否必须先成为好友
-  allow-self: true               # 是否允许查看 / 管理自己的留言墙
+  # 查看留言墙是否必须先成为好友
+  view-requires-friend: false
+  # 发布留言是否必须先成为好友
+  post-requires-friend: true
+  # 评论留言是否必须先成为好友
+  comment-requires-friend: true
+  # 点赞留言是否必须先成为好友
+  like-requires-friend: false
+  # 是否允许查看与管理自己的留言墙
+  allow-self: true
 
-# --- 留言墙审核 ---
-# enabled                 = 留言本体审核
-# comment-enabled         = 留言评论审核
-# auto-approve-self       = 自己发给自己的内容是否自动通过
-# notify-owner            = 有待审内容时是否提醒墙主
-# audit-log               = 是否记录审核日志
-# audit-file              = 审核日志输出位置（相对插件目录）
-# 如果你的服平时没人审核，建议直接关掉
+# 留言墙内容审核
 wallModeration:
+  # 留言审核总开关
   enabled: false
+  # 墙主自身留言是否免审自动通过
   auto-approve-self: true
+  # 产生待审核内容时是否提醒墙主
   notify-owner: true
+  # 留言回复评论审核开关
   comment-enabled: false
+  # 墙主回复评论是否免审自动通过
   comment-auto-approve-self: true
+  # 产生待审回复时是否提醒墙主
   comment-notify-owner: true
+  # 是否记录审核日志
   audit-log: true
+  # 审核日志文件路径（相对插件数据目录）
   audit-file: "logs/wall-moderation.log"
 
-# --- 社交互动提醒 ---
-# 服务器总开关
-# 这里关掉，就是整个服不再发这种提醒
-# 这里开着时，玩家还能在自己的设置里继续细分关闭
+# 社交互动提醒全服总开关
 socialNotifications:
-  status-like: true      # 动态点赞提醒
-  status-comment: true   # 动态评论提醒
-  wall-post: true        # 新留言提醒
-  wall-like: true        # 留言点赞提醒
-  wall-comment: true     # 留言评论提醒
-  preview-length: 24     # 评论 / 留言提醒中的内容预览长度
+  # 动态点赞提醒
+  status-like: true
+  # 动态评论提醒
+  status-comment: true
+  # 留言墙新留言提醒
+  wall-post: true
+  # 留言点赞提醒
+  wall-like: true
+  # 留言回复评论提醒
+  wall-comment: true
+  # 提醒消息中的内容预览字数
+  preview-length: 24
 
-# --- 关系时间线 ---
-# 关系时间线会记录：
-# 1. 私聊
-# 2. 动态点赞 / 评论
-# 3. 留言发布 / 点赞 / 评论
-# 这只是展示最近互动，不会影响实际好友功能
+# 关系互动时间线
 timeline:
-  preview-length: 32   # 时间线卡片中的文本预览长度
-  keep-per-friend: 32  # 每对好友最多保留多少条时间线记录
+  # 时间线卡片中的文本预览字数
+  preview-length: 32
+  # 每对好友保留的互动记录上限
+  keep-per-friend: 32
 
-# --- 生日提醒 ---
-# checkTime 使用 24 小时制 HH:mm
-# advance-days 可写多个数字：
-# 0 = 生日当天
-# 1 = 提前 1 天
-# 7 = 提前 7 天
-# 如果你的服不用生日玩法，直接把 enabled 改成 false
+# 生日定时提醒任务
 birthdayReminder:
+  # 是否启用生日定时检测与提醒
   enabled: false
+  # 每日检测时间（24 小时制 HH:mm）
   checkTime: "00:05"
+  # 提前提醒天数列表，0 为当天，1 为提前 1 天
   advance-days:
     - 0
     - 1
-  friendMessage: "今天是 {player} 的生日，别忘了送上祝福。"
-  advanceMessage: "{player} 还有 {days} 天就生日了，记得提前准备祝福。"
+  # 生日当天广播提示
+  friendMessage: "今天是 {player} 的生日，别忘了送上祝福"
+  # 提前提醒提示
+  advanceMessage: "{player} 还有 {days} 天就生日了，记得提前准备祝福"
+  # 禁用提醒的世界列表
   disabledWorlds:
     - "text"
 
-# --- 生日修改次数 ---
-# 如果玩家有 cyufriends.birthday.vip，就会用 vip 这一档
-# 这里也能继续往下加 mvp、sponsor、legend 之类任意组名
+# 生日修改次数限制，对应权限 cyufriends.birthday.<组名>
 birthdayLimits:
+  # 允许修改生日的总次数，0 为不可修改
   default: 1
+  vip: 2
+  svip: 3
 
-# --- 个人资料 ---
-# bio-max-length     = 签名最大长度
-# bio-preview-length = 个人主页 / 列表里的签名预览长度
+# 个人主页与资料
 profile:
+  # 个性签名最大字数
   bio-max-length: 64
+  # 个人主页与列表里的签名预览字数
   bio-preview-length: 32
 
-# --- 模块开关 ---
-# friend  是主体模块；如果你还要使用好友系统，请保持开启
-# proxy   是跨服能力模块；Reload 首发暂不发布跨服代理，默认关闭，等代理端一起发布时再开启
-# group   = 分组相关
-# chat    = 私聊与离线留言
-# social  = 动态、留言墙、互动提醒
-# profile = 个人主页、生日、设置、通知中心
-#
-# 关闭模块后，相关命令、菜单入口和通知会一起隐藏
-# 如果 friend 关闭，group / chat / social / profile 即使写 true 也不会启动
-# proxy 独立，只影响跨服功能；单服发布包保持 false 更清晰
+# 核心功能模块开关
+# 关闭模块后，相关命令、界面入口与提醒将同步隐藏
+# friend 为核心底座，若关闭则 group、chat、social、profile 不会加载
 modules:
-  proxy: false
+  # 好友核心模块
   friend: true
+  # 分组管理模块
   group: true
+  # 私聊与离线留言模块
   chat: true
+  # 动态与留言墙模块
   social: true
+  # 个人主页与资料模块
   profile: true
+  # 跨服代理模块，单服发布包默认关闭
+  proxy: false
 
-# --- 跨服代理 ---
-# 单服不用改这段，保持 enabled: false 就行
-# 想启用跨服，需要同时满足：
-# 1. modules.proxy = true
-# 2. proxy.enabled = true
-# 3. 所有后端服安装后端插件
-# 4. 代理端安装对应 proxy 插件
-# 5. 所有服使用同一套 channel / protocol-version / secret
-# 6. 每台后端的 server-id 唯一
-# 7. 所有后端的 cyufriends-reload database.type 必须为 MySQL 并共用同一数据库
-# 8. 如安装 cyuid-reload，它也必须使用 MySQL 并让所有后端共用同一数据库
+# 跨服代理设置，单服部署保持 enabled: false 即可
+# 跨服部署需开启 modules.proxy 与 proxy.enabled，所有后端服与代理端共用同一套 channel / secret 与共享 MySQL 数据库
 proxy:
+  # 跨服功能总开关
   enabled: false
-  server-id: "survival-1"   # 当前后端服唯一 ID
-  # 可选：给 server-id 配置面向玩家显示的服名
-  # server-names:
-  #   survival-1: "生存一区"
-  #   survival-2: "生存二区"
-  channel: "cyufriends:gateway"      # 跨服通信频道名
-  protocol-version: 1                # 协议版本；所有服必须一致
-  secret: "change-this-secret"       # 共享密钥；所有服必须一致
-  max-clock-skew-seconds: 15         # 允许的消息时间误差（秒），填 0 或负数可关闭时间误差校验
-  direct-message-timeout-seconds: 8  # 跨服私聊回执超时（秒）
-  teleport-precheck-timeout-seconds: 6  # 跨服传送预检超时（秒）
-  presence-refresh-seconds: 60       # 在线状态低频刷新；代理端重启后会自动恢复在线表
+  # 当前后端子服唯一标识
+  server-id: "survival-1"
+  # 跨服通信频道名，所有子服与代理端必须一致
+  channel: "cyufriends:gateway"
+  # 跨服通信协议版本
+  protocol-version: 1
+  # 跨服通信共享密钥
+  secret: "change-this-secret"
+  # 允许的时钟误差（秒），0 为关闭校验
+  max-clock-skew-seconds: 15
+  # 跨服私聊回执超时（秒）
+  direct-message-timeout-seconds: 8
+  # 跨服传送预检超时（秒）
+  teleport-precheck-timeout-seconds: 6
+  # 在线状态心跳刷新周期（秒）
+  presence-refresh-seconds: 60

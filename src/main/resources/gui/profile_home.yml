@@ -1,3 +1,49 @@
+# CyuFriends Reload - 个人主页主菜单配置
+# 玩家执行 /friend 或 /friend gui 时打开的核心社交中枢
+#
+# 菜单结构字段
+# title                - 界面标题，支持 MiniMessage 渐变与变量
+# layout               - 字符界面网格，每行严格 9 槽，行数决定菜单大小（6 行 = 54 格），空格为空位
+# items                - 按键字典，每个字符映射具体图标与动作
+#
+# 按钮配置字段
+# material             - 原版材质名（如 PLAYER_HEAD、PAPER），亦支持外部物品（ia:、ox:、ce:、nexo:）
+# head                 - 头颅材质来源，支持 %player_name%（当前玩家）、玩家名、Base64 或贴图哈希
+# custom_model_data    - 资源包材质编号
+# name / lore          - 按钮名称与说明，支持 MiniMessage 与颜色标签
+# actions              - 点击动作，按 left / right / shift_left / shift_right 分开配置
+#
+# 颜色与排版语法
+# <#RRGGBB>            - 十六进制颜色
+# <gradient:#A:#B>文字</gradient> - 双色或多色渐变
+# <gray> <aqua> 等标签  - 原生颜色标签
+#
+# 当前主页可用占位符
+# %player_name%        - 当前玩家名称
+# %player_uid_display% - 玩家唯一数字 UID（需安装 CyuID）
+# %bio%                - 个性签名预览
+# %bio_limit%          - 个性签名最大字符数限制
+# %friend_count%       - 好友总数
+# %friend_online_count%- 在线好友数
+# %group_count%        - 分组总数
+# %request_count%      - 待处理申请数
+# %sent_request_count% - 已发出申请数
+# %unread_count%       - 未读离线留言数
+# %notification_count% - 未读综合通知数
+# %birthday%           - 已绑定生日
+# %blacklist_count%    - 已拉黑玩家数
+# %recommend_count%    - 共同好友推荐数
+# %status_count%       - 动态发布数
+# %wall_count%         - 留言墙留言数
+#
+# 常用动作指令语法
+# [player] <指令>      - 玩家自身执行指令（不带斜杠）
+# [console] <指令>     - 控制台身份执行指令
+# [close]              - 关闭当前界面
+# [sound] <音效>       - 播放指定音效
+# [birthday_input]     - 唤起聊天栏生日录入
+# [bio_input]          - 唤起聊天栏个性签名录入
+
 title: "<gradient:#5FD9FF:#82E6D2><bold>个人主页</bold></gradient> <dark_gray>|</dark_gray> <gray>%player_name%</gray>"
 layout:
   - "#########"
@@ -7,19 +53,32 @@ layout:
   - "#O# ACQY#"
   - "#########"
 items:
+  # 边框装饰板
   '#':
     material: LIGHT_BLUE_STAINED_GLASS_PANE
     name: " "
+
+  # 玩家个人资料卡片
   'H':
+    # 按钮材质，头颅固定为 PLAYER_HEAD
     material: PLAYER_HEAD
+    # 头颅皮肤来源，%player_name% 自动渲染当前打开界面的玩家皮肤
     head: "%player_name%"
+    # 按钮标题
     name: "<aqua><bold>%player_name%</bold></aqua>"
+    # 按钮说明，可使用当前界面的上下文占位符
     lore:
       - "<gray>%player_uid_label%</gray> <white>%player_uid_display%</white>"
       - "<gray>签名</gray> <white>%bio%</white>"
       - "<gray>好友</gray> <white>%friend_count%</white> <dark_gray>|</dark_gray> <gray>在线</gray> <aqua>%friend_online_count%</aqua> <dark_gray>|</dark_gray> <gray>分组</gray> <white>%group_count%</white>"
       - "<gray>申请</gray> <yellow>%request_count%</yellow>/<white>%sent_request_count%</white> <dark_gray>|</dark_gray> <gray>消息</gray> <aqua>%unread_count%</aqua> <dark_gray>|</dark_gray> <gray>通知</gray> <yellow>%notification_count%</yellow>"
       - "<gray>生日</gray> <white>%birthday%</white> <dark_gray>|</dark_gray> <gray>黑名单</gray> <white>%blacklist_count%</white>"
+      - "<gray>点击原位刷新主页数据</gray>"
+    actions:
+      left:
+        - "[sound] UI_BUTTON_CLICK 1.0 1.2"
+        - "[refresh]"
+
   'R':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjM2OTZlNjYwZDMxMWFlOWQwYzQ1Nzc1ZTk3MjBkYWUzYjMxMGZlZjYzNjBmNTMzMTBjOWJjOTcwYmI3ZjI1In19fQ=="
@@ -30,7 +89,7 @@ items:
       - "<gray>当前已发出</gray> <white>%sent_request_count%</white> <gray>条申请</gray>"
     actions:
       left:
-        - "[player] friend requests"
+        - "[open] requests_list"
   'Q':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDZiY2EwZjg3MmQ1NmY2MDk2ZTg4YTVkMmUzM2VjOTE1ZmU3NDQ0Y2M1M2U0MDYzZjNhYTNiNjFjMDI2ZjA3MSJ9fX0="
@@ -41,7 +100,7 @@ items:
       - "<gray>今日生日</gray> <white>%birthday_today_count%</white> <dark_gray>|</dark_gray> <gray>近期生日</gray> <white>%birthday_upcoming_count%</white>"
     actions:
       left:
-        - "[player] friend notifications"
+        - "[open] notification_center"
   'Y':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGU0ODU4ZWUyMzI2MmEzMTRhMGQwZGExN2Q4NzEzOWI5MzhlMzBlZjk2MmQwNDE3N2E4NjVhNGIwZDM4MTA2ZSJ9fX0="
@@ -51,7 +110,7 @@ items:
       - "<gray>根据共同好友发现更值得添加的人</gray>"
     actions:
       left:
-        - "[player] friend recommend"
+        - "[open] friend_recommendations"
   'S':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjQxOTY2MjM1NzVkNmM2MzdlZTc3ZWIyODEwYzRkMDI1MTUzMDhjYmIxYTQ2ZGNjMDNlZDAyMjY5MmI1N2U0YiJ9fX0="
@@ -61,7 +120,7 @@ items:
       - "<gray>查看或发布自己的动态</gray>"
     actions:
       left:
-        - "[player] status view %player_name%"
+        - "[open] status_list"
   'W':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDMxYmRiOWQ0MmJmNTVlYjYwN2QzOTQ4Yjk0MjdmNzAxMGQ4MmFhODQyMTRjNDI1ZmYzNDVhMzNjZDJiOCJ9fX0="
@@ -71,7 +130,7 @@ items:
       - "<gray>查看好友给你留下的内容</gray>"
     actions:
       left:
-        - "[player] wall %player_name%"
+        - "[open] wall_view %player_name%"
   'T':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmUzZjQ2ZmNjMThjN2VmMGEyZmVmMmY4OTYzZDFlNDc2MWYyMDUxZmRiMGM4YjE5YjdmODkyMzJjZWNlNTg3ZSJ9fX0="
@@ -82,7 +141,7 @@ items:
       - "<gray>好友传送</gray> <white>%tp_state%</white>"
     actions:
       left:
-        - "[player] friend settings"
+        - "[open] settings_panel"
   'F':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2I5NDg0M2QzNDBhYmFkYmQ2NDAxZWY0ZWM3NGRjZWM0YjY2OTY2MTA2NWJkMWEwMWY5YTU5MDVhODkxOWM3MiJ9fX0="
@@ -93,7 +152,7 @@ items:
       - "<gray>打开好友列表，查看资料和快捷操作</gray>"
     actions:
       left:
-        - "[player] friend list"
+        - "[open] friends_list"
   'M':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2QwMDA3MzExZjY1ODk0NTg2Nzg4NDk0NTcyMmE0MzBjNTI3ZjMyMjNiOTA5NjEyZTQ1ZDAzMjA4OTZlYWU5YSJ9fX0="
@@ -103,7 +162,7 @@ items:
       - "<gray>打开私聊和离线留言界面</gray>"
     actions:
       left:
-        - "[player] friend messages"
+        - "[open] messages_list"
   'G':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzczZThiZDNjNDNjNDUxNGM3NjQ4MWNhMWRhZjU1MTQ5ZGZjOTNiZDFiY2ZhOGFiOTQzN2I5ZjdlYjMzOTJkOSJ9fX0="
@@ -113,7 +172,7 @@ items:
       - "<gray>整理不同类型的好友</gray>"
     actions:
       left:
-        - "[player] friend grouplist"
+        - "[open] groups_list"
   'B':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzY4MzQ2NWY3ZDBkYTJkZDA1NGQwNGViOTc0ZDdkYjkyOTA0NzgxMTc3ZmQwODAzODViNmJjOGFjMDEyN2IwOSJ9fX0="
@@ -123,7 +182,7 @@ items:
       - "<gray>查看或解除屏蔽玩家</gray>"
     actions:
       left:
-        - "[player] friend blacklist"
+        - "[open] blacklist"
   'D':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGVmY2FlZDVlY2YxMTczMzQ5MGIxMGQwZTdjZjA0MDVkNWYzM2U5YjQ2N2MyYWIyYmVkMTYxYTVjOTcwNDk5ZSJ9fX0="
@@ -143,7 +202,7 @@ items:
       - "<gray>快速查看还能添加谁为好友</gray>"
     actions:
       left:
-        - "[player] friend online"
+        - "[open] online_players"
   'A':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTAzNWM1MjgwMzZiMzg0YzUzYzljOGExYTEyNTY4NWUxNmJmYjM2OWMxOTdjYzlmMDNkZmEzYjgzNWIxYWE1NSJ9fX0="
@@ -153,7 +212,7 @@ items:
       - "<gray>适合快速找到想添加的人</gray>"
     actions:
       left:
-        - "[player] friend online"
+        - "[open] online_players"
   'C':
     material: PLAYER_HEAD
     head: "basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODY3MjA4NWZmNWRmMGVlODUyMTM2ZTJkNDFhNzY5MjI5MjkxZDY2NmIyOGU5ZmIwNGQ2YzkyZjE1OGU0MmJiIn19fQ=="

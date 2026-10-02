@@ -141,7 +141,7 @@ abstract class CyuView(
         }
 
         if (binding != null) {
-            val nodes = binding.template.actions[clickType] ?: binding.template.actions[CyuClickType.ALL] ?: return
+            val nodes = binding.template.actionsFor(clickType).takeIf { it.isNotEmpty() } ?: return
             playGuiClickSound(binding.template, clickType, nodes)
             ActionRegistry.execute(
                 player,

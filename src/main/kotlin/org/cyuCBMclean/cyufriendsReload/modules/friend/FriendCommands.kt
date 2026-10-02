@@ -1,4 +1,4 @@
-﻿package org.cyuCBMclean.cyufriendsReload.modules.friend
+package org.cyuCBMclean.cyufriendsReload.modules.friend
 
 import kotlinx.coroutines.runBlocking
 import org.bukkit.Bukkit
@@ -56,31 +56,31 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import org.cyuCBMclean.cyufriendsReload.command.HelpRenderer
 
 object FriendCommands {
 
-    private const val HELP_PAGE_SIZE = 10
     private val adminTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 
     fun register(plugin: CyufriendsReload, module: FriendModule, chatModule: ChatModule?) {
         CommandDispatcher(plugin, "friend") {
 
             executes {
-                sendHelp(sender, null)
+                HelpRenderer.render(sender, null)
             }
 
             chatModule?.let { ChatCommands.registerSubCommands(plugin, it, this) }
 
             subCommand("help") {
                 executes {
-                    sendHelp(sender, getArg(0))
+                    val first = getArg(0)
+                    val second = getArg(1)
+                    val combined = if (second != null) "$first $second" else first
+                    HelpRenderer.render(sender, combined)
                 }
 
                 tabComplete {
-                    filterCompletions(
-                        (1..helpPageCount(CyufriendsReload.instance)).map(Int::toString),
-                        args.getOrElse(0) { "" }
-                    )
+                    HelpRenderer.tabCompletions(sender, args.getOrElse(0) { "" })
                 }
             }
 
@@ -2524,121 +2524,6 @@ object FriendCommands {
             }
 
         }.register()
-    }
-
-    private fun sendHelp(sender: CommandSender, pageArg: String?) {
-        val plugin = CyufriendsReload.instance
-        val lines = helpLineKeys(plugin)
-        val totalPages = maxOf(1, (lines.size + HELP_PAGE_SIZE - 1) / HELP_PAGE_SIZE)
-        val parsedPage = pageArg?.toIntOrNull()
-        if (pageArg != null && parsedPage == null) {
-            plugin.langEngine.sendRaw(sender, "<red>页码无效，请输入数字。</red>")
-            return
-        }
-
-        val page = if (parsedPage == null || parsedPage in 1..totalPages) parsedPage ?: 1 else 1
-        if (parsedPage != null && parsedPage !in 1..totalPages) {
-            plugin.langEngine.sendRaw(
-                sender,
-                "<gray>帮助页码超出范围，已为你显示第 <white>1</white> 页，共 <white>$totalPages</white> 页。</gray>"
-            )
-        }
-
-        val start = (page - 1) * HELP_PAGE_SIZE
-        val end = minOf(start + HELP_PAGE_SIZE, lines.size)
-
-        sender.sendLang("help-border")
-        sender.sendLang("help-title")
-        lines.subList(start, end).forEach(sender::sendLang)
-        plugin.langEngine.sendRaw(
-            sender,
-            "<gray>第 <white>$page</white>/<white>$totalPages</white> 页</gray> <dark_gray>|</dark_gray> <gray>使用 <white>/friend help [页码]</white> 翻页</gray>"
-        )
-        if (sender is Player && totalPages > 1) {
-            FriendRichMessages.sendHelpPager(sender, page, totalPages)
-        }
-        sender.sendLang("help-border")
-    }
-
-    private fun helpPageCount(plugin: CyufriendsReload): Int {
-        return maxOf(1, (helpLineKeys(plugin).size + HELP_PAGE_SIZE - 1) / HELP_PAGE_SIZE)
-    }
-
-    private fun helpLineKeys(plugin: CyufriendsReload): List<String> {
-        val lines = mutableListOf(
-            "help-add",
-            "help-revoke",
-            "help-accept",
-            "help-deny",
-            "help-remove",
-            "help-block",
-            "help-unblock",
-            "help-tp",
-            "help-tpaccept",
-            "help-tpdeny",
-            "help-tptoggle",
-            "help-personal",
-            "help-notify",
-            "help-notifyme",
-            "help-note",
-            "help-notedetail",
-            "help-tag",
-            "help-tags",
-            "help-tagprimary",
-            "help-tagcolor",
-            "help-untagcolor",
-            "help-tagfilter",
-            "help-untag",
-            "help-pin",
-            "help-unpin"
-        )
-        if (plugin.moduleManager.isEnabled("group")) {
-            lines += listOf("help-group", "help-grouplist", "help-grouprules", "help-groupmoveall")
-        }
-        if (plugin.moduleManager.isEnabled("chat")) {
-            lines += listOf("help-chat", "help-messages", "help-msg", "help-reply")
-        }
-        if (plugin.moduleManager.isEnabled("profile")) {
-            lines += listOf(
-                "help-profile-birthday",
-                "help-birthday",
-                "help-birthdays",
-                "help-gui",
-                "help-notifications",
-                "help-socialsettings",
-                "help-settings"
-            )
-        }
-        lines += listOf("help-list", "help-requests", "help-sentrequests", "help-recommend", "help-timeline", "help-admin", "help-admin-legacy")
-        if (plugin.moduleManager.isEnabled("social")) {
-            lines += listOf(
-                "help-status",
-                "help-wall",
-                "help-profilesocial",
-                "help-status-publish",
-                "help-status-comment",
-                "help-status-comments",
-                "help-status-like",
-                "help-status-pin",
-                "help-wall-post",
-                "help-wall-comment",
-                "help-wall-comments",
-                "help-wall-commentpending",
-                "help-wall-commentapprove",
-                "help-wall-commentreject",
-                "help-wall-commentapproveall",
-                "help-wall-commentrejectall",
-                "help-wall-like",
-                "help-wall-pin",
-                "help-wall-pending",
-                "help-wall-approve",
-                "help-wall-approveall",
-                "help-wall-reject",
-                "help-wall-rejectall",
-                "help-admin-moderation"
-            )
-        }
-        return lines
     }
 
     private fun requestDailyLimit(plugin: CyufriendsReload, player: org.bukkit.entity.Player): Int {

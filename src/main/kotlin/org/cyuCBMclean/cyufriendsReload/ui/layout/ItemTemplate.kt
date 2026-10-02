@@ -31,15 +31,60 @@ class ItemTemplate(private val section: ConfigurationSection) {
     private var staticCache: ItemStack? = null
 
     val actions = mutableMapOf<CyuClickType, List<ActionNode>>()
+    private val defaultActions = mutableListOf<ActionNode>()
 
     init {
-        section.getConfigurationSection("actions")?.let { actionSec ->
-            actionSec.getKeys(false).forEach { clickKey ->
-                val clickType = runCatching { CyuClickType.valueOf(clickKey.uppercase()) }.getOrDefault(CyuClickType.ALL)
-                val rawActions = actionSec.getStringList(clickKey)
-                actions[clickType] = rawActions.map { ActionNode.parse(it) }
+        if (section.isList("actions")) {
+            val list = section.getStringList("actions").map { ActionNode.parse(it) }
+            actions[CyuClickType.ALL] = list
+        } else if (section.isString("actions")) {
+            val single = section.getString("actions")?.takeIf { it.isNotBlank() }
+            if (single != null) {
+                actions[CyuClickType.ALL] = listOf(ActionNode.parse(single))
+            }
+        } else {
+            section.getConfigurationSection("actions")?.let { actionSec ->
+                actionSec.getKeys(false).forEach { rawKey ->
+                    val cleanKey = rawKey.lowercase().replace('-', '_')
+                    val rawActions = if (actionSec.isList(rawKey)) {
+                        actionSec.getStringList(rawKey)
+                    } else {
+                        listOfNotNull(actionSec.getString(rawKey))
+                    }
+                    val parsed = rawActions.map { ActionNode.parse(it) }
+                    when (cleanKey) {
+                        "default" -> defaultActions.addAll(parsed)
+                        "all" -> actions[CyuClickType.ALL] = parsed
+                        "left" -> actions[CyuClickType.LEFT] = parsed
+                        "right" -> actions[CyuClickType.RIGHT] = parsed
+                        "shift_left" -> actions[CyuClickType.SHIFT_LEFT] = parsed
+                        "shift_right" -> actions[CyuClickType.SHIFT_RIGHT] = parsed
+                        "middle" -> actions[CyuClickType.MIDDLE] = parsed
+                        "double_click" -> actions[CyuClickType.DOUBLE_CLICK] = parsed
+                        "drop" -> actions[CyuClickType.DROP] = parsed
+                        else -> {
+                            val clickType = runCatching { CyuClickType.valueOf(cleanKey.uppercase()) }.getOrNull()
+                            if (clickType != null) {
+                                actions[clickType] = parsed
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
+
+    fun actionsFor(clickType: CyuClickType): List<ActionNode> {
+        val all = actions[CyuClickType.ALL].orEmpty()
+        val fallback = defaultActions.ifEmpty { actions[CyuClickType.LEFT].orEmpty() }
+        val specific = when (clickType) {
+            CyuClickType.SHIFT_RIGHT -> actions[CyuClickType.SHIFT_RIGHT] ?: actions[CyuClickType.RIGHT] ?: fallback
+            CyuClickType.SHIFT_LEFT -> actions[CyuClickType.SHIFT_LEFT] ?: actions[CyuClickType.LEFT] ?: fallback
+            CyuClickType.RIGHT -> actions[CyuClickType.RIGHT] ?: fallback
+            CyuClickType.LEFT -> actions[CyuClickType.LEFT] ?: fallback
+            else -> actions[clickType] ?: fallback
+        }
+        return if (all.isEmpty()) specific else all + specific
     }
 
     fun render(player: Player): ItemStack {

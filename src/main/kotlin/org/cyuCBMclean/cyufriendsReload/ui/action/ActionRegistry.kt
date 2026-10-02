@@ -1,16 +1,22 @@
 package org.cyuCBMclean.cyufriendsReload.ui.action
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.title.Title
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.cyuCBMclean.cyufriendsReload.CyufriendsReload
 import org.cyuCBMclean.cyufriendsReload.core.debug.DebugLogger
 import org.cyuCBMclean.cyufriendsReload.core.scheduler.CyuConcurrency
+import org.cyuCBMclean.cyufriendsReload.extension.playAudio
 import org.cyuCBMclean.cyufriendsReload.extension.sendLang
 import org.cyuCBMclean.cyufriendsReload.modules.friend.FriendRequestNotes
 import org.cyuCBMclean.cyufriendsReload.modules.profile.ProfileModule
 import org.cyuCBMclean.cyufriendsReload.ui.input.PendingTextInput
 import org.cyuCBMclean.cyufriendsReload.ui.input.TextInputRequest
+import org.cyuCBMclean.cyufriendsReload.ui.view.CyuView
+import org.cyuCBMclean.cyufriendsReload.ui.view.GuiRouter
 import org.cyuCBMclean.cyufriendsReload.ui.view.PaginatedView
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
@@ -23,9 +29,48 @@ object ActionRegistry {
         register("console") { _, payload -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), payload) }
         register("player") { player, payload -> player.performCommand(payload) }
         register("close") { player, _ -> player.closeInventory() }
+        register("refresh") { player, _ ->
+            (player.openInventory.topInventory.holder as? CyuView)?.refreshOpenView()
+        }
+        register("open") { player, payload ->
+            val parts = payload.trim().split("\\s+".toRegex()).filter { it.isNotBlank() }
+            if (parts.isNotEmpty()) {
+                GuiRouter.open(player, parts[0], parts.drop(1))
+            }
+        }
+        register("message") { player, payload ->
+            val text = payload.trim()
+            if (text.isNotEmpty()) {
+                CyufriendsReload.instance.langEngine.sendRaw(player, text)
+            }
+        }
+        register("actionbar") { player, payload ->
+            val text = payload.trim()
+            if (text.isNotEmpty()) {
+                val component = runCatching { MiniMessage.miniMessage().deserialize(text) }.getOrElse { Component.text(text) }
+                CyufriendsReload.instance.langEngine.audiences.player(player).sendActionBar(component)
+            }
+        }
+        register("title") { player, payload ->
+            val parts = payload.split(";", limit = 2)
+            val titleText = parts.getOrNull(0)?.trim().orEmpty()
+            val subtitleText = parts.getOrNull(1)?.trim().orEmpty()
+            val titleComp = runCatching { MiniMessage.miniMessage().deserialize(titleText) }.getOrElse { Component.text(titleText) }
+            val subtitleComp = runCatching { MiniMessage.miniMessage().deserialize(subtitleText) }.getOrElse { Component.text(subtitleText) }
+            val titleObj = Title.title(titleComp, subtitleComp)
+            CyufriendsReload.instance.langEngine.audiences.player(player).showTitle(titleObj)
+        }
         register("sound") { player, payload ->
-            val sound = runCatching { Sound.valueOf(payload.trim().uppercase().replace('.', '_')) }.getOrNull() ?: return@register
-            player.playSound(player.location, sound, 0.8f, 1.0f)
+            val parts = payload.trim().split("\\s+".toRegex()).filter { it.isNotBlank() }
+            val soundRaw = parts.getOrNull(0) ?: return@register
+            val volume = parts.getOrNull(1)?.toFloatOrNull() ?: 1.0f
+            val pitch = parts.getOrNull(2)?.toFloatOrNull() ?: 1.0f
+            val sound = runCatching { Sound.valueOf(soundRaw.uppercase().replace('.', '_')) }.getOrNull()
+            if (sound != null) {
+                player.playSound(player.location, sound, volume, pitch)
+            } else {
+                player.playAudio(soundRaw)
+            }
         }
         register("pm_input") { player, payload ->
             val target = payload.trim()

@@ -4,6 +4,8 @@ target/
 *.iml
 *.log
 dependency-reduced-pom.xml
+AGENTS.md
+RELEASE.md
 
 # Local compile-only jars.
 # PlaceholderAPI resolves from Maven now; cyuid-reload is still a local companion jar.
