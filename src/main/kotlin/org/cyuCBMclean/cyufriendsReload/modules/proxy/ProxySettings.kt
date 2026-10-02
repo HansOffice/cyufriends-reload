@@ -23,7 +23,7 @@ data class ProxySettings(
                 channel = config.getString("proxy.channel", "cyufriends:gateway")!!.trim().ifBlank { "cyufriends:gateway" },
                 protocolVersion = config.getInt("proxy.protocol-version", 1).coerceAtLeast(1),
                 secret = config.getString("proxy.secret", DEFAULT_SECRET)!!.trim(),
-                maxClockSkewSeconds = config.getLong("proxy.max-clock-skew-seconds", 15L).coerceAtLeast(1L),
+                maxClockSkewSeconds = config.getLong("proxy.max-clock-skew-seconds", 15L).coerceAtLeast(0L),
                 directMessageTimeoutSeconds = config.getLong("proxy.direct-message-timeout-seconds", 8L).coerceAtLeast(1L),
                 teleportPrecheckTimeoutSeconds = config.getLong("proxy.teleport-precheck-timeout-seconds", 6L).coerceAtLeast(1L),
                 presenceRefreshSeconds = config.getLong("proxy.presence-refresh-seconds", 60L).coerceAtLeast(10L)

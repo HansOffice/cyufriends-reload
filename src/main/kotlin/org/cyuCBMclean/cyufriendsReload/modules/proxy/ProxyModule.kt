@@ -79,7 +79,9 @@ class ProxyModule(
     override fun onEnable() {
         settings = ProxySettings.from(plugin.config)
         signer = ProxySigner(settings!!.secret)
-        messageDeduplicator = MessageDeduplicator(settings!!.maxClockSkewSeconds * 2_000L)
+        messageDeduplicator = MessageDeduplicator(
+            if (settings!!.maxClockSkewSeconds > 0) settings!!.maxClockSkewSeconds * 2_000L else 120_000L
+        )
         gateway = ProxyGateway(this)
         DebugLogger.debug(1) {
             "Proxy 模块初始化: enabled=${settings!!.enabled}, server=${settings!!.serverId}, channel=${settings!!.channel}"
@@ -132,7 +134,9 @@ class ProxyModule(
         localPlayers.clear()
         settings = ProxySettings.from(plugin.config)
         signer = ProxySigner(settings!!.secret)
-        messageDeduplicator = MessageDeduplicator(settings!!.maxClockSkewSeconds * 2_000L)
+        messageDeduplicator = MessageDeduplicator(
+            if (settings!!.maxClockSkewSeconds > 0) settings!!.maxClockSkewSeconds * 2_000L else 120_000L
+        )
         gateway = ProxyGateway(this)
         DebugLogger.debug(1) {
             "Proxy 模块重载: enabled=${settings!!.enabled}, server=${settings!!.serverId}, channel=${settings!!.channel}"

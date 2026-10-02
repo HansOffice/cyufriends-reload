@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.6
+
+- 支持将 max-clock-skew-seconds 设置为 0 或负数以彻底关闭跨服时间误差校验，避免跨机器时钟不一致时丢包
+- 跨服收包时间误差校验失败时详细输出偏差毫秒与允许毫秒，便于服主排查时钟漂移
+- SQLite 存储路径平滑归整至 data 目录，旧版根目录数据库自动无损迁移
+
 ## 1.1.5
 
 - 移除冗余的 `adventure-text-serializer-bungeecord` 依赖，富文本消息改由 `BukkitAudiences` 直接渲染发送

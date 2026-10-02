@@ -300,11 +300,15 @@ class ProxyGateway(
             DebugLogger.warning("跨服收包失败：$reason")
             return null
         }
-        if (abs(System.currentTimeMillis() - envelope.timestamp) > settings.maxClockSkewSeconds * 1000L) {
-            val reason = "消息时间偏差过大，type=${envelope.type.id} source=${envelope.sourceServer}"
-            module.recordProxyReceiveFailure(reason)
-            DebugLogger.warning("跨服收包失败：$reason")
-            return null
+        if (settings.maxClockSkewSeconds > 0) {
+            val skewMs = abs(System.currentTimeMillis() - envelope.timestamp)
+            val allowedSkewMs = settings.maxClockSkewSeconds * 1000L
+            if (skewMs > allowedSkewMs) {
+                val reason = "消息时间偏差过大，diffMs=${skewMs} allowedMs=${allowedSkewMs} type=${envelope.type.id} source=${envelope.sourceServer}"
+                module.recordProxyReceiveFailure(reason)
+                DebugLogger.warning("跨服收包失败：$reason")
+                return null
+            }
         }
         if (!module.acceptMessageId(envelope.messageId)) {
             DebugLogger.debug(2) { "跨服重复消息已忽略: messageId=${envelope.messageId}" }

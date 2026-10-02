@@ -24,9 +24,19 @@ class DatabaseManager(private val plugin: Plugin) {
 
         if (type.equals("SQLite", ignoreCase = true)) {
             prepareSqliteRuntime()
-            val dbFile = File(plugin.dataFolder, "data.db")
+            val dataDir = File(plugin.dataFolder, "data").apply { if (!exists()) mkdirs() }
+            val legacyFile = File(plugin.dataFolder, "data.db")
+            val dbFile = File(dataDir, "data.db")
+            if (legacyFile.exists() && !dbFile.exists()) {
+                runCatching {
+                    java.nio.file.Files.move(
+                        legacyFile.toPath(),
+                        dbFile.toPath(),
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                    )
+                }
+            }
             if (!dbFile.exists()) {
-                dbFile.parentFile.mkdirs()
                 dbFile.createNewFile()
             }
             config.jdbcUrl = "jdbc:sqlite:${dbFile.absolutePath}"

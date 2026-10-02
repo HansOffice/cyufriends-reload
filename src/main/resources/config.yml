@@ -286,7 +286,7 @@ proxy:
   channel: "cyufriends:gateway"      # 跨服通信频道名
   protocol-version: 1                # 协议版本；所有服必须一致
   secret: "change-this-secret"       # 共享密钥；所有服必须一致
-  max-clock-skew-seconds: 15         # 允许的时钟偏差（秒）
+  max-clock-skew-seconds: 15         # 允许的消息时间误差（秒），填 0 或负数可关闭时间误差校验
   direct-message-timeout-seconds: 8  # 跨服私聊回执超时（秒）
   teleport-precheck-timeout-seconds: 6  # 跨服传送预检超时（秒）
   presence-refresh-seconds: 60       # 在线状态低频刷新；代理端重启后会自动恢复在线表
