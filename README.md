@@ -2,177 +2,143 @@
 
 [![Build](https://github.com/HansOffice/cyufriendsplus-reload/actions/workflows/build.yml/badge.svg)](https://github.com/HansOffice/cyufriendsplus-reload/actions/workflows/build.yml)
 
-你的世界，从朋友开始
+Cyu 系列好友与轻社交核心插件
 
-作者：HansOffice
+为 Minecraft 服务器提供好友关系流转、分组标签、好友传送、点对点私聊、离线留言中心、动态广场、主页留言墙、个人名片与生日祝福；支持数据驱动 GUI、异步头像预热、SkinsRestorer 桥接与跨服网桥中继
 
-CyuFriends Reload 是一个面向 Minecraft 服务器的好友与轻社交插件。它保留了 CyuFriends 系列“让服务器里的关系更像一个社区”的方向，同时重新整理了模块、GUI、消息、缓存和 API，让插件更适合长期维护，也更适合开源协作
+## 核心特性
 
-## 功能
+- **好友关系链**：申请/同意/拒绝/撤回、拉黑防护、好友上线通知与无缝好友传送（支持世界隔离）
+- **分组与标签**：自定义好友分组、批量成员迁移、自选标签颜色与主标签高亮
+- **私聊与留言**：独立私聊指令空间（不占用系统 `/msg`）、快速回复与持久化离线留言信箱
+- **社区广场**：全服/好友圈动态短文、留言墙主页、互动点赞评论、置顶与内容审核机制
+- **个人名片**：个性签名设置、生日提醒广播、隐私保护设置与未读社交通知中心
+- **多平台原生**：提供 Paper 与 Folia 双原生构建，Folia 区域调度原生适配，杜绝主线程阻塞
+- **外部材质兼容**：菜单图标支持原版材质、CustomModelData 资源包、ItemsAdder、Oraxen、Nexo 与 CraftEngine
+- **跨服网桥中继**：无缝对接 Velocity 与 BungeeCord 配套网桥，支持跨服在线感知与时钟漂移自适应
 
-- 好友申请、同意、拒绝、撤回、删除
-- 黑名单、好友上线提醒、好友传送
-- 好友分组、备注、详细备注、标签、标签颜色、置顶
-- 私聊、快捷回复、离线留言、未读消息中心
-- 个人资料、签名、生日、隐私设置
-- 动态墙、评论、点赞、可见性控制
-- 留言墙、回复、点赞、审核、置顶
-- PlaceholderAPI 变量与附属插件 API
-- SQLite / MySQL 数据存储
-- Paper / Folia 分离构建
+## 常用入口
 
-## Reload 版有什么不同
+| 命令 | 用途 | 权限节点 |
+| --- | --- | --- |
+| `/friend` | 打开好友系统主界面（别名：`/cf`、`/cfs`、`/cyuf`） | `cyufriends.use` |
+| `/friend add <玩家>` | 发送好友申请 | `cyufriends.use` |
+| `/friend requests` | 查看待处理的好友申请列表 | `cyufriends.use` |
+| `/friend group` | 打开好友分组管理界面 | `cyufriends.use` |
+| `/friend tp <好友>` | 发起好友传送请求 | `cyufriends.use` |
+| `/friend msg <好友> <内容>` | 发送好友私聊（离线自动存为留言） | `cyufriends.command.msg` |
+| `/friend reply <内容>` | 快速回复最近一位私聊好友 | `cyufriends.command.reply` |
+| `/friend messages` | 打开未读离线留言中心 | `cyufriends.command.messages` |
+| `/status` | 打开动态广场主界面 | `cyufriends.command.status` |
+| `/wall` | 打开个人主页留言墙 | `cyufriends.command.wall` |
+| `/settings` | 打开个人社交与隐私设置面板 | `cyufriends.command.settings` |
+| `/bio <签名>` | 设置个人名片个性签名 | `cyufriends.command.bio` |
+| `/birthday <yyyy-MM-dd>` | 绑定个人生日日期 | `cyufriends.command.birthday` |
+| `/friend reload` | 安全重载配置、语言、音效与菜单（管理员） | `cyufriends.admin` |
+| `/friend admin inspect <玩家>` | 全景透视玩家社交数据与互动时间线（管理员） | `cyufriends.admin` |
+| `/friend admin rebuild <玩家>` | 重建并刷新指定玩家数据缓存（管理员） | `cyufriends.admin` |
+| `/friend admin health` | 数据库连通、变量挂载与模块运行体检（管理员） | `cyufriends.admin` |
+| `/friend admin proxy` | 查看跨服网桥节点通信与时钟状态（管理员） | `cyufriends.admin` |
 
-Reload 不是旧版换名。它把原本堆在一起的好友系统拆成了更清楚的模块：
+## 配置文件导航
 
-- `friend` 负责好友关系、申请、黑名单、传送与好友资料
-- `group` 负责分组列表、分组成员和批量移动
-- `chat` 负责私聊、回复和离线留言
-- `social` 负责动态、留言墙、评论和审核
-- `profile` 负责个人资料、生日和隐私设置
-- `proxy` 后端代码保留但默认关闭；需要跨服同步时，请配合已发布的代理端插件使用
+| 文件 / 目录 | 用途说明 |
+| --- | --- |
+| `config.yml` | 模块开关、数据库连接（SQLite/MySQL）、默认好友配额、跨服网桥配置与时钟校验参数 |
+| `messages.yml` | 游戏内聊天提示、交互反馈、系统通知与前缀文案 |
+| `sounds.yml` | 申请、私聊、交互成功与失败等各类动作的音效与音高 |
+| `Permissions.yml` | 完整权限节点清单与 VIP 阶梯档位配置参考 |
+| `Placeholder.yml` | PlaceholderAPI 变量列表与外部计分板/聊天格式接入参考 |
+| `gui/*.yml` | 数据驱动菜单布局配置，覆盖好友列表、申请、黑名单、资料、动态、留言墙等全部交互界面 |
+| `data/data.db` | SQLite 模式本地数据库文件（旧版根目录文件自动平滑迁移） |
 
-配置、GUI、权限和 API 都尽量按服主能看懂、能改动的方式整理。你可以把它当成一个完整的好友系统，也可以把它当成服务器社交功能的底座
+## 占位符变量 (PlaceholderAPI)
 
-## 安装
+插件原生注册 `cyufriends` 前缀，并向前兼容旧版 `friends` 前缀：
 
-1. 从 GitHub Releases 下载对应平台的 jar
-2. 将 jar 放入服务端 `plugins/`
-3. 推荐同时安装 `cyuid-reload`，让好友系统使用稳定 UID
-4. 可选安装 PlaceholderAPI，用于计分板、菜单或聊天变量
-5. 启动服务器，生成配置文件
-6. 按需要修改 `plugins/cyufriends-reload/config.yml`、`messages.yml` 和 `gui/` 下的菜单文件
+| 占位符 | 说明 |
+| --- | --- |
+| `%cyufriends_total_count%` | 当前玩家拥有的好友总数 |
+| `%cyufriends_request_count%` | 当前玩家收到的待处理申请数 |
+| `%cyufriends_offline_messages_count%` | 当前玩家未读离线留言条数 |
+| `%cyufriends_daily_requests_remaining%` | 当前玩家今日剩余可申请次数 |
+| `%cyufriends_note_<player>%` | 当前玩家为指定好友设置的备注名 |
+| `%cyufriends_group_<player>%` | 指定好友所在的自定义分组名 |
+| `%cyufriends_is_friend_<player>%` | 指定玩家是否为当前玩家好友（返回 是 / 否） |
+| `%cyufriends_birthday_<player>%` | 指定玩家的生日文本 |
+| `%rel_cyufriends_is_friend%` | 双向关系变量：判断目标双方是否为好友 |
+| `%rel_cyufriends_is_friend_bool%` | 双向关系变量：返回布尔值（true / false） |
 
-默认配置按单服发布准备。跨服相关配置保持关闭即可
+## 源码结构地图
 
-## 下载
-
-稳定版会放在 GitHub Releases 中。普通服主下载插件本体即可：
-
-- Paper / Purpur：`cyufriends-reload-paper-1.1.6.jar`
-- Folia：`cyufriends-reload-folia-1.1.6.jar`
-- 需要完整依赖包：`cyufriends-reload-paper-1.1.6-legacy-all.jar`
-
-附属插件开发者可以下载 API jar，或通过 GitHub Packages 引入：
-
-- `cyufriends-reload-paper-1.1.6-api.jar`
-
-## GitHub Packages
-
-Maven 仓库：
-
-```xml
-<repository>
-    <id>github</id>
-    <url>https://maven.pkg.github.com/HansOffice/cyufriendsplus-reload</url>
-</repository>
+```text
+src/main/kotlin/org/cyuCBMclean/cyufriendsReload/
+├─ api/             公共 API 接口、服务定义与好友生命周期事件
+├─ core/            生命周期装配、数据存储 (HikariCP/SQLite/MySQL)、平台调度与配置管理
+├─ command/         指令路由、鉴权过滤与 Tab 补全
+├─ integration/     外部插件联动 (CyuID / PlaceholderAPI / 材质库 Hook)
+├─ modules/
+│  ├─ friend/       好友核心：关系建立、申请流转、黑名单与好友传送
+│  ├─ group/        好友分组：自定义分组、分组成员管理与批量迁移
+│  ├─ chat/         好友私聊：点对点私聊、快速回复与离线留言信箱
+│  ├─ social/       社区广场：全服/好友动态、留言墙、互动点赞与内容审核
+│  ├─ profile/      个人名片：个性签名、生日广播与社交通知偏好
+│  └─ proxy/        跨服网桥：跨服在线感知、私聊转发与时钟偏差防护
+└─ ui/              数据驱动 GUI 引擎、异步头颅加载、外部材质桥与点击防抖
 ```
 
-API 依赖：
+## 构建说明
+
+本项目采用 Maven 进行多平台编译：
+
+```bash
+# 构建 Paper / Purpur 运行包（轻量）
+mvn clean package -Ppaper -DskipTests
+
+# 构建 Paper 全依赖运行包（内置运行库）
+mvn clean package -Ppaper,full -DskipTests
+
+# 构建 Folia 运行包（区域调度原生兼容）
+mvn clean package -Pfolia -DskipTests
+```
+
+构建产物位于 `target/` 目录：
+- `cyufriends-reload-paper-1.1.6.jar`：Paper 平台轻量包（依赖通过 plugin.yml libraries 自动解析）
+- `cyufriends-reload-paper-1.1.6-legacy-all.jar`：Paper 平台内置完整依赖包
+- `cyufriends-reload-folia-1.1.6.jar`：Folia 独立平台运行包
+- `cyufriends-reload-paper-1.1.6-api.jar`：附属插件编译依赖 API
+
+编译时可选本地放入 `libs/cyuid-reload-paper-1.0.4.jar` 提供 UID 扩展支持；PlaceholderAPI 自动由 Maven 中央库解析
+
+## 跨服架构与网桥
+
+单服环境直接开箱即用，默认 `modules.proxy: false`
+
+在 BungeeCord 或 Velocity 群组网络中：
+1. 各子服使用相同的 `proxy.secret` 与 `database`（跨服模式必须共用 MySQL 数据库）
+2. 代理端单独安装配套网桥 `cyufriends-reload-proxy`（私有网桥组件，不包含在本开源仓库内）
+3. 若存在跨机器或虚拟机系统时钟漂移，可在配置中将 `max-clock-skew-seconds` 设为 `0` 关闭时间校验，此时插件会自动启用 120 秒安全窗口执行消息防重放
+
+## 开发者 API
+
+附属插件建议通过 Maven 引入 API 依赖：
 
 ```xml
 <dependency>
     <groupId>org.cyuCBMclean</groupId>
     <artifactId>cyufriends-reload</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.6</version>
     <classifier>api</classifier>
+    <scope>provided</scope>
 </dependency>
 ```
 
-如果仓库还没有公开，拉取 GitHub Packages 时需要配置 GitHub token。仓库公开后，仍建议开发者按 GitHub Packages 的 Maven 认证方式配置，避免本地构建环境差异
-
-## 常用命令
-
-| 命令 | 用途 |
-| --- | --- |
-| `/friend` | 打开好友主页 |
-| `/friend add <玩家>` | 发送好友申请 |
-| `/friend requests` | 查看收到的申请 |
-| `/friend group` | 管理好友分组 |
-| `/friend tp <好友>` | 请求传送到好友 |
-| `/friend msg <好友> <内容>` | 发送私聊，不占用服务器原有的 `/msg` |
-| `/friend reply <内容>` | 回复最近私聊 |
-| `/friend messages` | 打开未读消息中心 |
-| `/status` | 查看动态墙 |
-| `/wall` | 查看留言墙 |
-| `/settings` | 打开个人设置 |
-| `/bio <内容>` | 设置个人签名 |
-| `/birthday <MM-dd>` | 设置生日 |
-
-## 权限
-
-普通玩家默认拥有常用功能：
-
-- `cyufriends.use`
-- `cyufriends.use.friend`
-- `cyufriends.use.group`
-- `cyufriends.use.chat`
-- `cyufriends.use.social`
-- `cyufriends.use.profile`
-
-管理员权限：
-
-- `cyufriends.admin`
-
-数量和冷却档位可以通过权限扩展，例如：
-
-- `cyufriends.request.vip`
-- `cyufriends.status.vip`
-- `cyufriends.wall.vip`
-
-完整节点见 `src/main/resources/Permissions.yml` 与 `plugin.yml`
-
-## 配置与定制
-
-你可以改这些文件来做自己的服务器风格：
-
-- `config.yml`：数据库、模块开关、冷却、数量、审核、生日提醒
-- `messages.yml`：聊天提示与富文本消息
-- `Placeholder.yml`：PlaceholderAPI 变量显示文本
-- `Permissions.yml`：权限说明
-- `gui/*.yml`：菜单布局、按钮、材质、点击动作
-
-GUI 菜单是数据驱动的，不需要重新编译插件就能调整大部分展示和入口
-
-## 构建
-
-```bash
-mvn -DskipTests -Ppaper package
-mvn -DskipTests -Ppaper,full package
-mvn -DskipTests -Pfolia package
-```
-
-构建完成后：
-
-- `target/cyufriends-reload-paper-1.1.4.jar` 是 Paper / Purpur 插件本体
-- `target/cyufriends-reload-folia-1.1.4.jar` 是 Folia 插件本体
-- `target/cyufriends-reload-paper-1.1.4-legacy-all.jar` 是完整依赖附加包
-- `target/cyufriends-reload-paper-1.1.4-api.jar` 是附属插件编译用 API
-
-其中 `-Ppaper` 生成轻量 Paper 包，`-Ppaper,full` 额外生成完整依赖附加包。Folia 只生成轻量包
-
-目前 `cyuid-reload` 仍作为本地 companion jar 参与编译，保留在 `libs/cyuid-reload-paper-1.0.4.jar`。PlaceholderAPI 从 Maven 仓库解析
-
-## API
-
-附属插件请优先依赖 API jar，不要直接调用内部 `modules.*` manager
-
-更多示例见 `API.md`
-
-## 跨服说明
-
-CyuFriends Reload 1.1.4 默认安装即可用于单服。需要跨服同步时，请另行安装配套私有代理端插件，并在 `config.yml` 中开启 `modules.proxy` 与 `proxy.enabled`。所有后端的好友本体必须共用 MySQL；如安装 CyuID，它也必须共用 MySQL。否则插件会拒绝启用代理模块。代理端源码和发布包不包含在本开源仓库及本仓库的 GitHub Release 中
+API 详细使用指南与监听事件参考见 [`API.md`](API.md)
 
 ## 开源协作
 
-欢迎提交问题、建议和 PR。比较适合优先改的方向：
+欢迎提交 Issue 与 Pull Request 参与共建：
 
-- 新 GUI 样式与菜单体验
-- 更多 PlaceholderAPI 变量
-- 更完整的数据迁移工具
-- 面向服主的配置示例
-- API 示例项目
-
-贡献说明见 `CONTRIBUTING.md`
-
-如果你只是想让玩家更愿意在服务器里认识彼此，这个项目就是为这件事做的
+- 提交代码前请确认通过 `mvn package -DskipTests` 编译验证
+- Kotlin 源码保持高内聚，遵循 0 注释自解释代码风格
+- 配置文件与提示信息保持自然平实的 Minecraft 术语风格，末尾不加多余机械句号
