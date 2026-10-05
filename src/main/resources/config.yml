@@ -9,7 +9,7 @@
 # --- 主要文件 ---
 # Permissions.yml - 完整权限节点速查
 # Placeholder.yml - 完整变量速查
-# messages.yml    - 提示与交互文本
+# lang/           - 提示与交互文本（zh_cn / en_us）
 # sounds.yml      - 音效配置
 # gui/*.yml       - 界面布局与动作
 #
@@ -18,6 +18,9 @@ config-version: 116
 
 # 配置布局协议版本，结构调整时自增
 config-layout: 1
+
+# 语言设置（zh_cn / en_us），对应 lang/ 目录下的语言文件
+language: zh_cn
 
 # 调试日志，日常运行请保持关闭
 debugLog:

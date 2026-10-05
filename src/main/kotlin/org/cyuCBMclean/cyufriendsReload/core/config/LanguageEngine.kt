@@ -1,6 +1,6 @@
 package org.cyuCBMclean.cyufriendsReload.core.config
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
@@ -9,32 +9,47 @@ import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.Plugin
 import java.io.File
+import java.util.Locale
 
 class LanguageEngine(private val plugin: Plugin) {
-
-    lateinit var audiences: BukkitAudiences
-        private set
 
     private val miniMessage = MiniMessage.miniMessage()
     private val messageCache = mutableMapOf<String, String>()
     private val missingKeysWarned = mutableSetOf<String>()
 
     fun initialize() {
-        audiences = BukkitAudiences.create(plugin)
         reload()
     }
 
     fun reload() {
-        val file = File(plugin.dataFolder, "messages.yml")
-        if (!file.exists()) {
-            plugin.saveResource("messages.yml", false)
+        val langDir = File(plugin.dataFolder, "lang")
+        if (!langDir.exists()) {
+            langDir.mkdirs()
+        }
+        val legacyMessages = File(plugin.dataFolder, "messages.yml")
+        val zhFile = File(langDir, "zh_cn.yml")
+        if (!zhFile.exists()) {
+            if (legacyMessages.exists()) {
+                legacyMessages.copyTo(zhFile, overwrite = true)
+            } else {
+                plugin.saveResource("lang/zh_cn.yml", false)
+            }
+        }
+        val enFile = File(langDir, "en_us.yml")
+        if (!enFile.exists()) {
+            plugin.saveResource("lang/en_us.yml", false)
         }
 
-        val yaml = YamlConfiguration().apply { load(file) }
+        val langCode = plugin.config.getString("language", "zh_cn")?.lowercase(Locale.ROOT) ?: "zh_cn"
+        val activeFile = File(langDir, "$langCode.yml").let {
+            if (it.exists()) it else zhFile
+        }
+
+        val yaml = YamlConfiguration().apply { load(activeFile) }
         val nextMessages = yaml.getKeys(true)
             .filter { yaml.isString(it) }
             .associateWith { yaml.getString(it)!! }
-        require(nextMessages.isNotEmpty()) { "messages.yml 没有可用语言键" }
+        require(nextMessages.isNotEmpty()) { "语言文件 ${activeFile.name} 没有可用语言键" }
 
         messageCache.clear()
         messageCache.putAll(nextMessages)
@@ -44,7 +59,7 @@ class LanguageEngine(private val plugin: Plugin) {
     fun send(sender: CommandSender, key: String, vararg placeholders: TagResolver) {
         val raw = messageCache[key] ?: run {
             if (missingKeysWarned.add(key)) {
-                plugin.logger.warning("messages.yml 缺少语言键: $key")
+                plugin.logger.warning("语言文件缺少语言键: $key")
             }
             return
         }
@@ -62,7 +77,7 @@ class LanguageEngine(private val plugin: Plugin) {
     fun component(key: String, placeholders: Map<String, String> = emptyMap(), includePrefix: Boolean = false): Component? {
         val raw = messageCache[key] ?: run {
             if (missingKeysWarned.add(key)) {
-                plugin.logger.warning("messages.yml 缺少语言键: $key")
+                plugin.logger.warning("语言文件缺少语言键: $key")
             }
             return null
         }
@@ -79,23 +94,17 @@ class LanguageEngine(private val plugin: Plugin) {
         return runCatching {
             miniMessage.deserialize(raw, *placeholders)
         }.getOrElse { exception ->
-            plugin.logger.warning("无法解析 messages.yml 中的 MiniMessage 文本：$raw")
+            plugin.logger.warning("无法解析语言文件中的 MiniMessage 文本：$raw")
             plugin.logger.warning("原因：${exception.message}")
             Component.text(raw)
         }
     }
 
-    private fun sendComponent(sender: CommandSender, component: Component) {
-        if (ColorCompat.rgbSupported) {
-            audiences.sender(sender).sendMessage(component)
+    fun sendComponent(sender: CommandSender, component: Component) {
+        if (sender is Audience) {
+            sender.sendMessage(component)
         } else {
             sender.sendMessage(ColorCompat.serialize(component))
-        }
-    }
-
-    fun shutdown() {
-        if (::audiences.isInitialized) {
-            audiences.close()
         }
     }
 }

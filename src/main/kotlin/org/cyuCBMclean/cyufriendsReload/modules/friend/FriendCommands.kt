@@ -1032,7 +1032,7 @@ object FriendCommands {
 
                         if (senderOnline && senderPlayer != null) {
                             CyuConcurrency.scheduler.runEntity(plugin, senderPlayer) {
-                                senderPlayer.teleportAsync(receiverLocation).thenAccept { success ->
+                                CyuConcurrency.teleport(senderPlayer, receiverLocation) { success ->
                                     if (success) {
                                         senderPlayer.sendLang("tp-success", mapOf("target" to receiverName))
                                         player.sendLang("tp-accepted", mapOf("sender" to senderPlayer.name))
@@ -3087,7 +3087,7 @@ object FriendCommands {
                     requester.sendLang("tp-world-disabled")
                     return@runEntity
                 }
-                requester.teleportAsync(location).thenAccept { success ->
+                CyuConcurrency.teleport(requester, location) { success ->
                     if (success) {
                         requester.sendLang("tp-success", mapOf("target" to targetName))
                     } else {

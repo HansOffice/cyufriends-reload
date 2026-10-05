@@ -58,10 +58,8 @@ object HelpRenderer {
         val start = (page - 1) * PAGE_SIZE
         val pageLines = lines.subList(start, minOf(start + PAGE_SIZE, lines.size))
 
-        val audience = plugin.langEngine.audiences.sender(sender)
-
-        audience.sendMessage(deserialize("<#3A4352><st>┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈</st></#3A4352>"))
-        audience.sendMessage(deserialize("<gradient:#58C7FF:#7DE2B8><bold>CyuFriends 帮助指南</bold></gradient> <#3A4352>|</#3A4352> <#8A96A8>$categoryName</#8A96A8>"))
+        plugin.langEngine.sendComponent(sender, deserialize("<#3A4352><st>┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈</st></#3A4352>"))
+        plugin.langEngine.sendComponent(sender, deserialize("<gradient:#58C7FF:#7DE2B8><bold>CyuFriends 帮助指南</bold></gradient> <#3A4352>|</#3A4352> <#8A96A8>$categoryName</#8A96A8>"))
 
         if (sender is Player) {
             var navLine = Component.empty().append(deserialize("<#8A96A8>专题分类: </#8A96A8>"))
@@ -82,7 +80,7 @@ object HelpRenderer {
                     .hoverEvent(HoverEvent.showText(deserialize("<#8A96A8>点击查阅全部指令总览</#8A96A8>")))
                 navLine = navLine.append(allBtn)
             }
-            audience.sendMessage(navLine)
+            plugin.langEngine.sendComponent(sender, navLine)
         }
 
         for (line in pageLines) {
@@ -91,7 +89,7 @@ object HelpRenderer {
             val entry = desc
                 .clickEvent(ClickEvent.suggestCommand(line.suggestCommand))
                 .hoverEvent(HoverEvent.showText(deserialize("<#8A96A8>点击在聊天框填入指令 <#D7DEE8>${line.command}</#D7DEE8></#8A96A8>")))
-            audience.sendMessage(entry)
+            plugin.langEngine.sendComponent(sender, entry)
         }
 
         if (totalPages > 1) {
@@ -107,14 +105,14 @@ object HelpRenderer {
                     .hoverEvent(HoverEvent.showText(deserialize("<#8A96A8>点击查看第 <#D7DEE8>$nextPage</#D7DEE8> 页</#8A96A8>")))
                 val info = deserialize(" <#8A96A8>第 <#D7DEE8>$page</#D7DEE8>/<#D7DEE8>$totalPages</#D7DEE8> 页</#8A96A8> ")
                 val footer = Component.empty().append(prevBtn).append(info).append(nextBtn)
-                audience.sendMessage(footer)
+                plugin.langEngine.sendComponent(sender, footer)
             } else {
                 val pageInfo = "<#8A96A8>第 <#D7DEE8>$page</#D7DEE8>/<#D7DEE8>$totalPages</#D7DEE8> 页 <#3A4352>|</#3A4352> 使用 <#D7DEE8>/friend help ${if (categoryId != null) "$categoryId " else ""}$page</#D7DEE8> 翻页</#8A96A8>"
-                audience.sendMessage(deserialize(pageInfo))
+                plugin.langEngine.sendComponent(sender, deserialize(pageInfo))
             }
         }
 
-        audience.sendMessage(deserialize("<#3A4352><st>┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈</st></#3A4352>"))
+        plugin.langEngine.sendComponent(sender, deserialize("<#3A4352><st>┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈</st></#3A4352>"))
     }
 
     private fun deserialize(text: String): Component {

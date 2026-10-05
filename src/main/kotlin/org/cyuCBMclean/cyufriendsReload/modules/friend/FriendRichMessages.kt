@@ -34,7 +34,7 @@ object FriendRichMessages {
 
     private fun sendRich(player: Player, component: Component) {
         if (!player.isOnline) return
-        CyufriendsReload.instance.langEngine.audiences.player(player).sendMessage(component)
+        CyufriendsReload.instance.langEngine.sendComponent(player, component)
     }
 
     private fun preview(content: String, limit: Int = 24): String {

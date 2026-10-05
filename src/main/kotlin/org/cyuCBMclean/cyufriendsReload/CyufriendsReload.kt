@@ -8,6 +8,7 @@ import org.bukkit.plugin.ServicePriority
 import org.cyuCBMclean.cyufriendsReload.api.service.CyuFriendsService
 import org.cyuCBMclean.cyufriendsReload.api.service.CyuFriendsServiceImpl
 import org.cyuCBMclean.cyufriendsReload.command.dispatcher.DispatcherRegistry
+import org.cyuCBMclean.cyufriendsReload.core.config.ConfigUpgradeManager
 import org.cyuCBMclean.cyufriendsReload.core.config.LanguageEngine
 import org.cyuCBMclean.cyufriendsReload.core.config.Settings
 import org.cyuCBMclean.cyufriendsReload.core.config.SoundEngine
@@ -98,6 +99,8 @@ class CyufriendsReload : JavaPlugin() {
     override fun onEnable() {
         try {
             saveDefaultConfig()
+            ConfigUpgradeManager.prepare(this)
+            reloadConfig()
             saveBundledResource("Placeholder.yml")
             saveBundledResource("Permissions.yml")
             DebugLogger.initialize(this)
@@ -128,7 +131,6 @@ class CyufriendsReload : JavaPlugin() {
         val enabledModules = if (::moduleManager.isInitialized) moduleManager.enabledModuleIds() else emptyList()
         shutdownRuntime()
         server.servicesManager.unregisterAll(this)
-        if (::langEngine.isInitialized) langEngine.shutdown()
         printDisableBanner(enabledModules)
         DebugLogger.shutdown()
     }
@@ -146,6 +148,7 @@ class CyufriendsReload : JavaPlugin() {
         validateReloadResources()
         shutdownRuntime()
         try {
+            ConfigUpgradeManager.prepare(this)
             reloadConfig()
             DebugLogger.reload()
             Settings.reload(config)
@@ -170,10 +173,16 @@ class CyufriendsReload : JavaPlugin() {
             "config.yml 的 joinChat.lines 含有空行"
         }
 
-        listOf("messages.yml", "sounds.yml").forEach { fileName ->
-            val file = File(dataFolder, fileName)
-            require(file.exists()) { "缺少 $fileName" }
-            YamlConfiguration().apply { load(file) }
+        val soundsFile = File(dataFolder, "sounds.yml")
+        require(soundsFile.exists()) { "缺少 sounds.yml" }
+        YamlConfiguration().apply { load(soundsFile) }
+
+        val langCode = candidate.getString("language", "zh_cn")?.lowercase(java.util.Locale.ROOT) ?: "zh_cn"
+        val langFile = File(dataFolder, "lang/$langCode.yml").let {
+            if (it.exists()) it else File(dataFolder, "lang/zh_cn.yml")
+        }
+        if (langFile.exists()) {
+            YamlConfiguration().apply { load(langFile) }
         }
 
         val guiFolder = File(dataFolder, "gui")
@@ -304,24 +313,31 @@ class CyufriendsReload : JavaPlugin() {
 
     private fun printEnableBanner() {
         val console = Bukkit.getConsoleSender()
-        console.sendMessage("§8══════════════════════════════════════════════")
-        console.sendMessage("§b  CyuFriends-Reload §7插件已启用")
-        console.sendMessage("§7  Author: §fHansOffice")
-        console.sendMessage("§7  QQ交流群: §f331910315")
-        console.sendMessage("§7  已启用模块: §f${enabledModuleSummary()}")
+        console.sendMessage("")
+        console.sendMessage("§8--------------------------------------------------")
+        console.sendMessage("§b CyuFriends-Reload §f- 好友与社交核心")
+        console.sendMessage("§f")
+        console.sendMessage("§7 ▸ §f版本 §b${description.version} §8| §f平台 §b${CyuConcurrency.bandName()}")
+        console.sendMessage("§7 ▸ §f已启用模块 §b${enabledModuleSummary()} §8| §f交流群 §b331910315")
         if (DebugLogger.isEnabled()) {
-            console.sendMessage("§7  Debug: §a开启 §7(Level §f${DebugLogger.detailLevel()}§7)")
+            console.sendMessage("§7 ▸ §f调试日志 §b开启 §7(级别 §b${DebugLogger.detailLevel()}§7)")
         }
-        console.sendMessage("§8══════════════════════════════════════════════")
+        console.sendMessage("§f")
+        console.sendMessage("§7 ▸ §f状态 §b启动完成")
+        console.sendMessage("§8--------------------------------------------------")
+        console.sendMessage("")
     }
 
     private fun printDisableBanner(enabledModules: List<String>) {
         val console = Bukkit.getConsoleSender()
         val modules = enabledModules.ifEmpty { listOf("无") }.joinToString(", ")
-        console.sendMessage("§8══════════════════════════════════════════════")
-        console.sendMessage("§c  CyuFriends-Reload §7已禁用")
-        console.sendMessage("§7  Author: §fHansOffice")
-        console.sendMessage("§7  已关闭模块: §f$modules")
-        console.sendMessage("§8══════════════════════════════════════════════")
+        console.sendMessage("")
+        console.sendMessage("§8--------------------------------------------------")
+        console.sendMessage("§b CyuFriends-Reload §f- 好友与社交核心")
+        console.sendMessage("§f")
+        console.sendMessage("§7 ▸ §f已注销模块 §b$modules")
+        console.sendMessage("§7 ▸ §f状态 §7已卸载")
+        console.sendMessage("§8--------------------------------------------------")
+        console.sendMessage("")
     }
 }

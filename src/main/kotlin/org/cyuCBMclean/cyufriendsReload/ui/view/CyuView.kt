@@ -216,36 +216,11 @@ abstract class CyuView(
     private fun defaultGuiSound(clickType: CyuClickType, nodes: List<ActionNode>): String {
         if (nodes.any { it.executorId == "prev_page" || it.executorId == "next_page" }) return "gui-page"
         if (nodes.any { it.executorId == "close" }) return "gui-close"
-        if (nodes.any { it.executorId == "player" && isCancelCommand(it.payload) }) return "gui-cancel"
-        if (nodes.any { it.executorId == "player" && isConfirmCommand(it.payload) }) return "gui-confirm"
         return when (clickType) {
             CyuClickType.RIGHT,
             CyuClickType.SHIFT_RIGHT -> "gui-secondary-click"
             CyuClickType.MIDDLE -> "gui-middle-click"
             else -> "gui-click"
         }
-    }
-
-    private fun isCancelCommand(payload: String): Boolean {
-        val lower = payload.lowercase()
-        return lower.startsWith("friend profile ") ||
-            lower.startsWith("friend profiledetail ") ||
-            lower.contains(" cancel") ||
-            lower.contains(" deny") ||
-            lower.contains(" reject")
-    }
-
-    private fun isConfirmCommand(payload: String): Boolean {
-        val lower = payload.lowercase()
-        return lower.contains(" accept") ||
-            lower.contains(" approve") ||
-            lower.startsWith("friend remove ") ||
-            lower.startsWith("friend revoke ") ||
-            lower.startsWith("friend add ") ||
-            lower.startsWith("friend tag") ||
-            lower.startsWith("friend group") ||
-            lower.startsWith("wall approve") ||
-            lower.startsWith("status pin") ||
-            lower.startsWith("birthday ")
     }
 }

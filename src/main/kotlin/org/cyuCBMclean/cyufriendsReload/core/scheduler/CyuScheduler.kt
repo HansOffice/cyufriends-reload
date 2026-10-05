@@ -15,11 +15,18 @@ interface CyuScheduler {
     fun runGlobal(plugin: Plugin, task: () -> Unit): CyuTask
     fun runRegion(plugin: Plugin, location: Location, task: () -> Unit): CyuTask
     fun runEntity(plugin: Plugin, entity: Entity, task: () -> Unit): CyuTask
+    fun teleport(entity: Entity, location: Location, callback: (Boolean) -> Unit)
     fun cancelAll(plugin: Plugin)
 }
 
 object CyuConcurrency {
     val isFolia: Boolean = PlatformSchedulerFactory.isFolia
 
+    fun bandName(): String = PlatformSchedulerFactory.bandName()
+
     val scheduler: CyuScheduler by lazy(PlatformSchedulerFactory::create)
+
+    fun teleport(entity: Entity, location: Location, callback: (Boolean) -> Unit) {
+        scheduler.teleport(entity, location, callback)
+    }
 }

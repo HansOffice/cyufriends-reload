@@ -1,12 +1,16 @@
 package org.cyuCBMclean.cyufriendsReload.ui.action
 
+import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.title.Title
+import net.md_5.bungee.api.ChatMessageType
+import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.cyuCBMclean.cyufriendsReload.CyufriendsReload
+import org.cyuCBMclean.cyufriendsReload.core.config.ColorCompat
 import org.cyuCBMclean.cyufriendsReload.core.debug.DebugLogger
 import org.cyuCBMclean.cyufriendsReload.core.scheduler.CyuConcurrency
 import org.cyuCBMclean.cyufriendsReload.extension.playAudio
@@ -48,7 +52,11 @@ object ActionRegistry {
             val text = payload.trim()
             if (text.isNotEmpty()) {
                 val component = runCatching { MiniMessage.miniMessage().deserialize(text) }.getOrElse { Component.text(text) }
-                CyufriendsReload.instance.langEngine.audiences.player(player).sendActionBar(component)
+                if (player is Audience) {
+                    player.sendActionBar(component)
+                } else {
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, *TextComponent.fromLegacyText(ColorCompat.serialize(component)))
+                }
             }
         }
         register("title") { player, payload ->
@@ -57,8 +65,12 @@ object ActionRegistry {
             val subtitleText = parts.getOrNull(1)?.trim().orEmpty()
             val titleComp = runCatching { MiniMessage.miniMessage().deserialize(titleText) }.getOrElse { Component.text(titleText) }
             val subtitleComp = runCatching { MiniMessage.miniMessage().deserialize(subtitleText) }.getOrElse { Component.text(subtitleText) }
-            val titleObj = Title.title(titleComp, subtitleComp)
-            CyufriendsReload.instance.langEngine.audiences.player(player).showTitle(titleObj)
+            if (player is Audience) {
+                val titleObj = Title.title(titleComp, subtitleComp)
+                player.showTitle(titleObj)
+            } else {
+                player.sendTitle(ColorCompat.serialize(titleComp), ColorCompat.serialize(subtitleComp), 10, 70, 20)
+            }
         }
         register("sound") { player, payload ->
             val parts = payload.trim().split("\\s+".toRegex()).filter { it.isNotBlank() }

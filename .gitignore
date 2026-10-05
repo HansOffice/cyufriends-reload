@@ -12,3 +12,7 @@ RELEASE.md
 libs/*.jar
 !libs/cyuid-reload-1.0.3.jar
 !libs/cyuid-reload-paper-1.0.4.jar
+
+# Independent companion repositories
+代理端/
+附属/

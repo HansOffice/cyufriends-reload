@@ -13,7 +13,7 @@ Cyu 系列好友与轻社交核心插件
 - **私聊与留言**：独立私聊指令空间（不占用系统 `/msg`）、快速回复与持久化离线留言信箱
 - **社区广场**：全服/好友圈动态短文、留言墙主页、互动点赞评论、置顶与内容审核机制
 - **个人名片**：个性签名设置、生日提醒广播、隐私保护设置与未读社交通知中心
-- **多平台原生**：提供 Paper 与 Folia 双原生构建，Folia 区域调度原生适配，杜绝主线程阻塞
+- **多平台原生**：提供 Paper、Folia 与 Legacy 三端原生构建，Folia 区域调度原生适配，杜绝主线程阻塞
 - **外部材质兼容**：菜单图标支持原版材质、CustomModelData 资源包、ItemsAdder、Oraxen、Nexo 与 CraftEngine
 - **跨服网桥中继**：无缝对接 Velocity 与 BungeeCord 配套网桥，支持跨服在线感知与时钟漂移自适应
 
@@ -45,7 +45,7 @@ Cyu 系列好友与轻社交核心插件
 | 文件 / 目录 | 用途说明 |
 | --- | --- |
 | `config.yml` | 模块开关、数据库连接（SQLite/MySQL）、默认好友配额、跨服网桥配置与时钟校验参数 |
-| `messages.yml` | 游戏内聊天提示、交互反馈、系统通知与前缀文案 |
+| `lang/*.yml` | 多语言提示与反馈文案（zh_cn / en_us），支持在 config.yml 一键切换 |
 | `sounds.yml` | 申请、私聊、交互成功与失败等各类动作的音效与音高 |
 | `Permissions.yml` | 完整权限节点清单与 VIP 阶梯档位配置参考 |
 | `Placeholder.yml` | PlaceholderAPI 变量列表与外部计分板/聊天格式接入参考 |
@@ -87,26 +87,24 @@ src/main/kotlin/org/cyuCBMclean/cyufriendsReload/
 └─ ui/              数据驱动 GUI 引擎、异步头颅加载、外部材质桥与点击防抖
 ```
 
-## 构建说明
+## 构建
 
-本项目采用 Maven 进行多平台编译：
 
 ```bash
-# 构建 Paper / Purpur 运行包（轻量）
+# 构建 Paper 1.21+ 运行包（默认）
 mvn clean package -Ppaper -DskipTests
 
-# 构建 Paper 全依赖运行包（内置运行库）
-mvn clean package -Ppaper,full -DskipTests
+# 构建 Spigot 1.16-1.20 运行包
+mvn package -Plegacy -DskipTests
 
-# 构建 Folia 运行包（区域调度原生兼容）
-mvn clean package -Pfolia -DskipTests
+# 构建 Folia 1.21+ 运行包
+mvn package -Pfolia -DskipTests
 ```
 
-构建产物位于 `target/` 目录：
-- `cyufriends-reload-paper-1.1.6.jar`：Paper 平台轻量包（依赖通过 plugin.yml libraries 自动解析）
-- `cyufriends-reload-paper-1.1.6-legacy-all.jar`：Paper 平台内置完整依赖包
-- `cyufriends-reload-folia-1.1.6.jar`：Folia 独立平台运行包
-- `cyufriends-reload-paper-1.1.6-api.jar`：附属插件编译依赖 API
+构建产物位于：
+- `target/cyufriends-reload-paper-1.1.6.jar`
+- `target/cyufriends-reload-folia-1.1.6.jar`
+- `target/cyufriends-reload-legacy-1.1.6.jar`
 
 编译时可选本地放入 `libs/cyuid-reload-paper-1.0.4.jar` 提供 UID 扩展支持；PlaceholderAPI 自动由 Maven 中央库解析
 

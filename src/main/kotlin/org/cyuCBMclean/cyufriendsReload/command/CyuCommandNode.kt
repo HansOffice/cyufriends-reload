@@ -2,6 +2,7 @@ package org.cyuCBMclean.cyufriendsReload.command
 
 import org.bukkit.command.CommandSender
 import org.cyuCBMclean.cyufriendsReload.core.debug.DebugLogger
+import org.cyuCBMclean.cyufriendsReload.extension.sendLang
 
 class CyuCommandNode(val name: String) {
 
@@ -43,13 +44,13 @@ class CyuCommandNode(val name: String) {
     fun executeNode(context: CommandContext, path: String = "/$name"): Boolean {
         if (permission != null && !context.sender.hasPermission(permission!!)) {
             DebugLogger.debug(1) { "命令拒绝: ${context.senderLabel} 无权限执行 $path | need=$permission" }
-            onNoPermission?.invoke(context.sender)
+            onNoPermission?.invoke(context.sender) ?: context.sender.sendLang("no-permission")
             return true
         }
 
         if (requirePlayer && !context.isPlayer) {
             DebugLogger.debug(1) { "命令拒绝: ${context.senderLabel} 不是玩家，无法执行 $path" }
-            onNotPlayer?.invoke(context.sender)
+            onNotPlayer?.invoke(context.sender) ?: context.sender.sendLang("only-player")
             return true
         }
 

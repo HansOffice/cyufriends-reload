@@ -9,7 +9,7 @@ import org.bukkit.scheduler.BukkitTask
 object PlatformSchedulerFactory {
     val isFolia: Boolean = false
 
-    fun bandName(): String = "paper"
+    fun bandName(): String = "legacy"
 
     fun create(): CyuScheduler = BukkitSchedulerImpl()
 }
@@ -39,7 +39,8 @@ private class BukkitSchedulerImpl : CyuScheduler {
         wrap(Bukkit.getScheduler().runTask(plugin, task))
 
     override fun teleport(entity: Entity, location: Location, callback: (Boolean) -> Unit) {
-        entity.teleportAsync(location).thenAccept(callback)
+        val success = entity.teleport(location)
+        callback(success)
     }
 
     override fun cancelAll(plugin: Plugin) {

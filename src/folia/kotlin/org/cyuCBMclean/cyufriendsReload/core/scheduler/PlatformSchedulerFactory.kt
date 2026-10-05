@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit
 object PlatformSchedulerFactory {
     val isFolia: Boolean = true
 
+    fun bandName(): String = "folia"
+
     fun create(): CyuScheduler = FoliaSchedulerImpl()
 }
 
@@ -38,6 +40,10 @@ private class FoliaSchedulerImpl : CyuScheduler {
 
     override fun runEntity(plugin: Plugin, entity: Entity, task: () -> Unit): CyuTask =
         wrap(entity.scheduler.run(plugin, { task() }, null))
+
+    override fun teleport(entity: Entity, location: Location, callback: (Boolean) -> Unit) {
+        entity.teleportAsync(location).thenAccept(callback)
+    }
 
     override fun cancelAll(plugin: Plugin) {
         Bukkit.getAsyncScheduler().cancelTasks(plugin)

@@ -1,13 +1,11 @@
+# CyuFriends-Reload 简体中文语言文件
+# 修改后执行 /friend reload 即可即时热重载生效
+# 支持 MiniMessage 语义标签、Hex 颜色代码与渐变标签，保留运行时占位符
+
 prefix: "<#3A4352>[</#3A4352><gradient:#58C7FF:#7DE2B8><bold>CyuFriends</bold></gradient><#3A4352>]</#3A4352> "
 
-# CyuFriends Reload 语言文件
-# 说明：
-# 1. 只修改冒号右侧文本，不要改左侧键名
-# 2. 普通提示保留运行时占位符，例如 <player> <target> <amount> <seconds>
-# 3. usage-* 用于命令参数错误提示；help-* 用于 /friend help 与部分 GUI 引导
 
 # 统一前缀与系统提示
-# prefix 位于文件首行，统一控制大部分聊天提示前缀
 only-player: "<#FF6B6B>× 该命令只能由玩家执行</#FF6B6B>"
 no-permission: "<#FF6B6B>× 你没有权限执行这个操作</#FF6B6B>"
 reload-success: "<#7DD3FC>› 配置、语言、音效与模块已重新加载</#7DD3FC>"

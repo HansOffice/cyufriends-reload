@@ -392,7 +392,7 @@
         <a href="#admin">管理员运维</a>
         <a href="#papi">PlaceholderAPI</a>
         <a href="#gui">菜单与自定义图标</a>
-        <a href="#advice">上线建议</a>
+        <a href="#tips">配置建议</a>
       </nav>
     </aside>
 
@@ -418,24 +418,49 @@
 
       <section id="install">
         <h2>版本与选用</h2>
-        <p>当前服务端好友核心版本为 <code>1.1.6</code>，跨服代理端配套版本为 <code>1.0.3</code>；根据服务器平台选用对应 Jar 文件放入 <code>plugins</code> 目录</p>
-        <div class="grid">
-          <div class="card">
-            <h4>Paper / Purpur 后端</h4>
-            <p>使用 <code>cyufriends-reload-paper-1.1.6.jar</code>，适用于 1.20+ 及 1.21+ 的 Paper、Purpur 等标准服务端</p>
+        <div class="steps">
+          <div class="step">
+            <h4>放入插件</h4>
+            <p>按服务端类型选择对应 jar 放进服务器的 <code>plugins</code> 文件夹</p>
           </div>
-          <div class="card">
-            <h4>Folia 原生后端</h4>
-            <p>使用 <code>cyufriends-reload-folia-1.1.6.jar</code>，基于区域调度（RegionScheduler）实现线程安全，杜绝主线程卡顿</p>
+          <div class="step">
+            <h4>启动一次</h4>
+            <p>启动服务器生成默认配置文件，控制台确认插件加载成功</p>
           </div>
-          <div class="card">
-            <h4>离线/轻量环境</h4>
-            <p>若服务器无法访问 Maven 官方库下载运行依赖，可使用全依赖打包版本 <code>cyufriends-reload-paper-1.1.6-legacy-all.jar</code></p>
+          <div class="step">
+            <h4>设置权限</h4>
+            <p>普通玩家至少需要 <code>cyufriends.use</code>，管理与配置权限按需授予管理员</p>
+          </div>
+          <div class="step">
+            <h4>进服测试</h4>
+            <p>进入游戏执行 <code>/friend</code> 测试功能，确认界面交互与配置正常</p>
           </div>
         </div>
-        <div class="note">
-          Paper 与 Folia 服务端请严格选择对应的专版 Jar，不要混放；软依赖推荐配合 <code>cyuid-reload</code> 使用，可获得持久稳定的玩家跨服唯一身份支持
-        </div>
+
+        <h3>选择哪个 jar</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>文件</th>
+              <th>适合场景</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>cyufriends-reload-paper-1.1.6.jar</code></td>
+              <td>1.21 起的 Paper / Purpur 服务端</td>
+            </tr>
+            <tr>
+              <td><code>cyufriends-reload-folia-1.1.6.jar</code></td>
+              <td>1.21 起的 Folia 服务端</td>
+            </tr>
+            <tr>
+              <td><code>cyufriends-reload-legacy-1.1.6.jar</code></td>
+              <td>1.16.5 至 1.20.x 的 Spigot / Paper 服务端</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="note">三个 jar 只放一个；当前文档对应 <code>1.1.6</code>；功能完全一致，根据服务端环境选择对应 jar 即可</div>
 
         <h3>核心生成文件速查</h3>
         <table>
@@ -453,9 +478,9 @@
               <td>数据库连接、各模块开关、默认好友上限、跨服参数、Debug 开关</td>
             </tr>
             <tr>
-              <td><code>messages.yml</code></td>
-              <td>玩家提示与反馈文案</td>
-              <td>所有聊天提示、动作反馈、通知前缀</td>
+              <td><code>lang/*.yml</code></td>
+              <td>多语言提示与反馈文案</td>
+              <td>提示与交互文本（zh_cn / en_us），支持在 config.yml 中一键切换</td>
             </tr>
             <tr>
               <td><code>sounds.yml</code></td>
@@ -495,6 +520,7 @@
             <h4>后端子服部署</h4>
             <p>每个 Paper/Purpur 子服放置 <code>cyufriends-reload-paper-1.1.6.jar</code></p>
             <p>每个 Folia 子服放置 <code>cyufriends-reload-folia-1.1.6.jar</code></p>
+            <p>每个 1.16.5 至 1.20 子服放置 <code>cyufriends-reload-legacy-1.1.6.jar</code></p>
           </div>
         </div>
 
@@ -1073,20 +1099,20 @@ settings:
         </table>
       </section>
 
-      <section id="advice">
-        <h2>上线建议</h2>
-        <div class="grid two">
-          <div class="card">
-            <h4>单服上线推荐</h4>
-            <p>单个子服或轻量社区直接保持 <code>proxy: false</code>，数据库使用默认 <code>SQLite</code> 即可，无需额外部署</p>
-          </div>
-          <div class="card">
-            <h4>群组网络推荐</h4>
-            <p>多子服跨服架构必须配置 MySQL 共享存储，各服保持相同的 <code>secret</code>，并确认代理端与后端 <code>server-id</code> 一一对应</p>
-          </div>
-        </div>
+      <section id="tips">
+        <h2>配置建议</h2>
+        <ol>
+          <li>用默认配置启动一次，生成好友配置、语言、音效与交互面板</li>
+          <li>给默认玩家组 <code>cyufriends.use</code>，给管理员 <code>cyufriends.admin</code></li>
+          <li>在 <code>config.yml</code> 中配置跨服模式（单服 SQLite / 跨服 MySQL）与同步密钥</li>
+          <li>按服务器规则调整好友上限、传送冷却与留言审核等参数</li>
+          <li>根据服务器主题微调 <code>gui/friends_list.yml</code> 好友列表与申请界面</li>
+          <li>使用两个测试账号执行 <code>/friend add</code> 测试发送与接受好友申请</li>
+          <li>测试好友私聊、状态通知与跨服传送等基础功能</li>
+          <li>确认数据同步与并发操作安全无异常后，正式向全服玩家开放</li>
+        </ol>
         <div class="footer">
-          文档对应 CyuFriends-Reload 当前项目架构：1.1.6 服务端核心与 1.0.3 跨服代理端
+          CyuFriends-Reload 文档遇到不确定的配置，先在测试服试一遍，再放到正式服
         </div>
       </section>
     </div>

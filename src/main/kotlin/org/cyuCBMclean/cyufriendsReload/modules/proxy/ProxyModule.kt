@@ -718,7 +718,7 @@ class ProxyModule(
             }
 
             CyuConcurrency.scheduler.runEntity(plugin, requester) {
-                requester.teleportAsync(target.location).thenAccept { success ->
+                CyuConcurrency.teleport(requester, target.location) { success ->
                     if (success) {
                         requester.sendLang("tp-success", mapOf("target" to targetName))
                         correlationId?.let { gateway.sendTeleportExecuteAck(it, "success") }
