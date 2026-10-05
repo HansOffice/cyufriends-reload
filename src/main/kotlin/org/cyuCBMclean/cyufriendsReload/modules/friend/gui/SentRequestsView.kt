@@ -4,6 +4,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.cyuCBMclean.cyufriendsReload.CyufriendsReload
+import org.cyuCBMclean.cyufriendsReload.core.config.ColorCompat
 import org.cyuCBMclean.cyufriendsReload.extension.uid
 import org.cyuCBMclean.cyufriendsReload.integration.hook.CyuIdHook
 import org.cyuCBMclean.cyufriendsReload.modules.friend.FriendRequestEntry
@@ -54,10 +55,11 @@ class SentRequestsView(
         val meta = baseItem.itemMeta
         if (meta != null && meta.hasLore()) {
             val preview = FriendRequestNotes.preview(CyufriendsReload.instance, element.note)
-            meta.lore = meta.lore?.map {
+            val updated = meta.lore?.map {
                 it.replace("%request_note%", GuiTextFormatter.renderUserText(entryNote(element)))
                     .replace("%request_note_preview%", GuiTextFormatter.renderUserText(preview))
-            }
+            } ?: emptyList()
+            ColorCompat.applyGuiLoreLines(meta, updated)
             baseItem.itemMeta = meta
         }
         return if (template.hasHeadSource()) baseItem else GuiHeads.applyForUid(baseItem, element.receiverUid, player)

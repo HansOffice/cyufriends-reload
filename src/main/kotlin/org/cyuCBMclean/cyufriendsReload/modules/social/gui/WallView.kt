@@ -3,6 +3,7 @@ package org.cyuCBMclean.cyufriendsReload.modules.social.gui
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.cyuCBMclean.cyufriendsReload.core.config.ColorCompat
 import org.cyuCBMclean.cyufriendsReload.core.scheduler.CyuConcurrency
 import org.cyuCBMclean.cyufriendsReload.extension.uid
 import org.cyuCBMclean.cyufriendsReload.integration.hook.CyuIdHook
@@ -139,9 +140,10 @@ class WallView(
         val item = template.render(player, replacements)
         val meta = item.itemMeta ?: return item
         if (meta.hasLore()) {
-            meta.lore = meta.lore
+            val updated = meta.lore
                 ?.map { line -> line.replace("%content%", GuiTextFormatter.renderUserText(element.content)) }
-                ?.filterNot { it.contains(HIDDEN_LINE) }
+                ?.filterNot { it.contains(HIDDEN_LINE) } ?: emptyList()
+            ColorCompat.applyGuiLoreLines(meta, updated)
         }
         item.itemMeta = meta
         return GuiHeads.applyForUid(item, element.authorUid, player)

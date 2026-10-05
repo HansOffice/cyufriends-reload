@@ -114,7 +114,7 @@ class ItemTemplate(private val section: ConfigurationSection) {
             val parsed = replace(it, player, replacements)
             val component = ColorCompat.parseMiniMessage(miniMessage, parsed)
             if (component == null || !ColorCompat.applyGuiDisplayName(meta, component)) {
-                meta.setDisplayName(if (component != null) ColorCompat.serialize(component) else ColorCompat.renderGuiMiniMessage(miniMessage, parsed))
+                meta.setDisplayName(if (component != null) ColorCompat.serializeGui(component) else ColorCompat.renderGuiMiniMessage(miniMessage, parsed))
             }
         }
 
@@ -125,9 +125,10 @@ class ItemTemplate(private val section: ConfigurationSection) {
             }
             val components = parsedLore.mapNotNull { it.second }
             if (components.size != parsedLore.size || !ColorCompat.applyGuiLore(meta, components)) {
-                meta.lore = parsedLore.map { (parsed, comp) ->
-                    if (comp != null) ColorCompat.serialize(comp) else ColorCompat.renderGuiMiniMessage(miniMessage, parsed)
+                val legacyLines = parsedLore.map { (parsed, comp) ->
+                    if (comp != null) ColorCompat.serializeGui(comp) else ColorCompat.renderGuiMiniMessage(miniMessage, parsed)
                 }
+                ColorCompat.applyGuiLoreLines(meta, legacyLines)
             }
         }
 

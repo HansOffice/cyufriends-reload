@@ -41,8 +41,21 @@ object ColorCompat {
         }
     }
 
+    fun cleanGuiComponent(component: Component): Component {
+        return component.decorationIfAbsent(net.kyori.adventure.text.format.TextDecoration.ITALIC, net.kyori.adventure.text.format.TextDecoration.State.FALSE)
+    }
+
+    fun cleanGuiString(str: String): String {
+        if (str.isEmpty()) return str
+        return if (str.startsWith("§r") || str.startsWith("&r")) str else "§r$str"
+    }
+
     fun serialize(component: Component): String {
         return if (rgbSupported) legacyRgb.serialize(component) else legacyNearest.serialize(component)
+    }
+
+    fun serializeGui(component: Component): String {
+        return cleanGuiString(serialize(cleanGuiComponent(component)))
     }
 
     fun renderMiniMessage(miniMessage: MiniMessage, raw: String, vararg placeholders: TagResolver): String {
@@ -54,7 +67,12 @@ object ColorCompat {
     }
 
     fun renderGuiMiniMessage(miniMessage: MiniMessage, raw: String, vararg placeholders: TagResolver): String {
-        return renderMiniMessage(miniMessage, raw, *placeholders)
+        val comp = parseMiniMessage(miniMessage, raw, *placeholders)
+        return if (comp != null) {
+            serializeGui(comp)
+        } else {
+            cleanGuiString(ChatColor.translateAlternateColorCodes('&', raw))
+        }
     }
 
     fun parseMiniMessage(miniMessage: MiniMessage, raw: String, vararg placeholders: TagResolver): Component? {
@@ -64,20 +82,34 @@ object ColorCompat {
     }
 
     fun applyGuiDisplayName(meta: ItemMeta, component: Component): Boolean {
+        val clean = cleanGuiComponent(component)
         if (!rgbSupported) return false
         val method = displayNameMethod ?: return false
         return runCatching {
-            method.invoke(meta, component)
+            method.invoke(meta, clean)
             true
         }.getOrDefault(false)
     }
 
     fun applyGuiLore(meta: ItemMeta, components: List<Component>): Boolean {
+        val clean = components.map { cleanGuiComponent(it) }
         if (!rgbSupported) return false
         val method = loreMethod ?: return false
         return runCatching {
-            method.invoke(meta, components)
+            method.invoke(meta, clean)
             true
         }.getOrDefault(false)
+    }
+
+    fun applyGuiLoreLines(meta: ItemMeta, lines: List<String>) {
+        val cleanLines = lines.map { cleanGuiString(it) }
+        if (rgbSupported && loreMethod != null) {
+            val serializer = if (rgbSupported) legacyRgb else legacyNearest
+            val components = cleanLines.map {
+                cleanGuiComponent(serializer.deserialize(it))
+            }
+            if (applyGuiLore(meta, components)) return
+        }
+        meta.lore = cleanLines
     }
 }

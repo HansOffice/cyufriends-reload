@@ -4,6 +4,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.cyuCBMclean.cyufriendsReload.CyufriendsReload
+import org.cyuCBMclean.cyufriendsReload.core.config.ColorCompat
 import org.cyuCBMclean.cyufriendsReload.core.scheduler.CyuConcurrency
 import org.cyuCBMclean.cyufriendsReload.extension.sendLang
 import org.cyuCBMclean.cyufriendsReload.extension.uid
@@ -282,7 +283,8 @@ class NotificationCenterView(
         val baseItem = template.render(player, replacements)
         val meta = baseItem.itemMeta ?: return baseItem
         if (meta.hasLore()) {
-            meta.lore = meta.lore?.map { it.replace("%task_preview%", GuiTextFormatter.renderUserText(element.preview)) }
+            val updated = meta.lore?.map { it.replace("%task_preview%", GuiTextFormatter.renderUserText(element.preview)) } ?: emptyList()
+            ColorCompat.applyGuiLoreLines(meta, updated)
             baseItem.itemMeta = meta
         }
         val targetUid = element.uid

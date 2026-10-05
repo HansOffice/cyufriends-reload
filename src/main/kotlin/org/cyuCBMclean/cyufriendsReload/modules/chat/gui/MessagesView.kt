@@ -3,6 +3,7 @@ package org.cyuCBMclean.cyufriendsReload.modules.chat.gui
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.cyuCBMclean.cyufriendsReload.core.config.ColorCompat
 import org.cyuCBMclean.cyufriendsReload.extension.onlineScope
 import org.cyuCBMclean.cyufriendsReload.extension.onlineServerName
 import org.cyuCBMclean.cyufriendsReload.extension.uid
@@ -65,12 +66,13 @@ class MessagesView(
         val meta = baseItem.itemMeta ?: return baseItem
 
         if (meta.hasLore()) {
-            meta.lore = meta.lore
+            val updated = meta.lore
                 ?.map { line ->
                     line
                         .replace("%content%", GuiTextFormatter.renderUserText(preview))
                         .replace("%latest_preview%", GuiTextFormatter.renderUserText(preview))
-                }
+                } ?: emptyList()
+            ColorCompat.applyGuiLoreLines(meta, updated)
         }
 
         baseItem.itemMeta = meta

@@ -73,14 +73,11 @@ object FriendCommands {
 
             subCommand("help") {
                 executes {
-                    val first = getArg(0)
-                    val second = getArg(1)
-                    val combined = if (second != null) "$first $second" else first
-                    HelpRenderer.render(sender, combined)
+                    HelpRenderer.render(sender, getArg(0), getArg(1))
                 }
 
                 tabComplete {
-                    HelpRenderer.tabCompletions(sender, args.getOrElse(0) { "" })
+                    HelpRenderer.tabCompletions(sender, args)
                 }
             }
 

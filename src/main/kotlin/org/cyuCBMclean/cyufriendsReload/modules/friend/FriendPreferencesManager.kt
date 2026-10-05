@@ -72,12 +72,17 @@ class FriendPreferencesManager(
         return cache.getIfPresent(uid)?.teleportMode ?: FriendTeleportMode.DIRECT
     }
 
+    fun snapshotGroupForFriendCached(ownerUid: String, friendUid: String): FriendGroupPreferences {
+        val groupName = friendManager.getFriendDataCached(ownerUid, friendUid)?.groupName ?: FriendDefaults.DEFAULT_GROUP_NAME
+        return snapshotGroupCached(ownerUid, groupName)
+    }
+
     fun resolveTeleportModeCached(receiverUid: String, requesterUid: String): FriendTeleportMode {
-        val personal = snapshotPersonal(receiverUid, requesterUid).teleport
+        val personal = snapshotPersonalCached(receiverUid, requesterUid).teleport
         if (personal != FriendPersonalState.DEFAULT) {
             return personal.resolve(teleportModeCached(receiverUid))
         }
-        val group = snapshotGroupForFriend(receiverUid, requesterUid).teleport
+        val group = snapshotGroupForFriendCached(receiverUid, requesterUid).teleport
         return group.resolve(teleportModeCached(receiverUid))
     }
 

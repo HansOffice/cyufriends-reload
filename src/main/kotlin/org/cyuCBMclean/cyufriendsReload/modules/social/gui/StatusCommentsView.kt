@@ -3,6 +3,7 @@ package org.cyuCBMclean.cyufriendsReload.modules.social.gui
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.cyuCBMclean.cyufriendsReload.core.config.ColorCompat
 import org.cyuCBMclean.cyufriendsReload.extension.uid
 import org.cyuCBMclean.cyufriendsReload.integration.hook.CyuIdHook
 import org.cyuCBMclean.cyufriendsReload.modules.social.SocialModule
@@ -61,7 +62,8 @@ class StatusCommentsView(
         val baseItem = template.render(player, replacements)
         val meta = baseItem.itemMeta ?: return baseItem
         if (meta.hasLore()) {
-            meta.lore = meta.lore?.map { it.replace("%content%", GuiTextFormatter.renderUserText(element.content)) }
+            val updated = meta.lore?.map { it.replace("%content%", GuiTextFormatter.renderUserText(element.content)) } ?: emptyList()
+            ColorCompat.applyGuiLoreLines(meta, updated)
         }
         baseItem.itemMeta = meta
         return GuiHeads.applyForUid(baseItem, element.authorUid, player)

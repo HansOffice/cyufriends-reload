@@ -29,32 +29,92 @@ object HelpRenderer {
         }
     }
 
-    fun tabCompletions(sender: CommandSender, currentArg: String): List<String> {
-        val categories = availableCategories(sender).map { it.id }
-        val totalPages = maxOf(1, (availableHelp(sender).size + PAGE_SIZE - 1) / PAGE_SIZE)
-        val pages = (1..totalPages).map(Int::toString)
-        val candidates = pages + categories
-        return candidates.filter { it.startsWith(currentArg, ignoreCase = true) }
+    fun tabCompletions(sender: CommandSender, args: List<String>): List<String> {
+        if (args.isEmpty()) return emptyList()
+        val categories = availableCategories(sender)
+        if (args.size <= 1) {
+            val currentArg = args.getOrElse(0) { "" }
+            val totalPages = maxOf(1, (availableHelp(sender).size + PAGE_SIZE - 1) / PAGE_SIZE)
+            val pages = (1..totalPages).map(Int::toString)
+            val catIds = categories.map { it.id }
+            val candidates = pages + catIds
+            return candidates.filter { it.startsWith(currentArg, ignoreCase = true) }
+        }
+        if (args.size == 2) {
+            val catArg = args[0]
+            val currentArg = args[1]
+            val matchedCategory = categories.firstOrNull { it.id.equals(catArg, ignoreCase = true) }
+            if (matchedCategory != null) {
+                val lines = availableHelp(sender, matchedCategory.id)
+                val totalPages = maxOf(1, (lines.size + PAGE_SIZE - 1) / PAGE_SIZE)
+                val pages = (1..totalPages).map(Int::toString)
+                return pages.filter { it.startsWith(currentArg, ignoreCase = true) }
+            }
+        }
+        return emptyList()
     }
 
-    fun render(sender: CommandSender, rawArg: String?) {
-        val plugin = CyufriendsReload.instance
-        val arg = rawArg?.trim()?.lowercase()
-        val categories = availableCategories(sender)
-        val matchedCategory = categories.firstOrNull { it.id.equals(arg, ignoreCase = true) }
+    fun tabCompletions(sender: CommandSender, currentArg: String): List<String> {
+        return tabCompletions(sender, listOf(currentArg))
+    }
 
-        val categoryId = matchedCategory?.id
-        val categoryName = matchedCategory?.name ?: "全指令总览"
-        val pageArg = if (matchedCategory != null) null else arg?.toIntOrNull()
+    fun render(sender: CommandSender, arg0: String? = null, arg1: String? = null) {
+        val plugin = CyufriendsReload.instance
+        val categories = availableCategories(sender)
+
+        val tokens = when {
+            arg1 != null -> listOfNotNull(arg0?.trim()?.takeIf { it.isNotBlank() }, arg1.trim().takeIf { it.isNotBlank() })
+            arg0 != null && arg0.contains(" ") -> arg0.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+            arg0 != null && arg0.isNotBlank() -> listOf(arg0.trim())
+            else -> emptyList()
+        }
+
+        var categoryId: String? = null
+        var categoryName = "全指令总览"
+        var pageArg: Int? = null
+
+        when (tokens.size) {
+            0 -> {}
+            1 -> {
+                val token = tokens[0]
+                val matched = categories.firstOrNull { it.id.equals(token, ignoreCase = true) }
+                if (matched != null) {
+                    categoryId = matched.id
+                    categoryName = matched.name
+                } else {
+                    pageArg = token.toIntOrNull()
+                    if (pageArg == null) {
+                        plugin.langEngine.sendRaw(sender, "<#FF6B6B>× 未知帮助主题或无效页码：<#D7DEE8>$token</#D7DEE8></#FF6B6B>")
+                        return
+                    }
+                }
+            }
+            else -> {
+                val token0 = tokens[0]
+                val token1 = tokens[1]
+                val match0 = categories.firstOrNull { it.id.equals(token0, ignoreCase = true) }
+                val match1 = categories.firstOrNull { it.id.equals(token1, ignoreCase = true) }
+                val page0 = token0.toIntOrNull()
+                val page1 = token1.toIntOrNull()
+
+                if (match0 != null && page1 != null) {
+                    categoryId = match0.id
+                    categoryName = match0.name
+                    pageArg = page1
+                } else if (match1 != null && page0 != null) {
+                    categoryId = match1.id
+                    categoryName = match1.name
+                    pageArg = page0
+                } else {
+                    val rawCombined = tokens.joinToString(" ")
+                    plugin.langEngine.sendRaw(sender, "<#FF6B6B>× 未知帮助主题或无效页码：<#D7DEE8>$rawCombined</#D7DEE8></#FF6B6B>")
+                    return
+                }
+            }
+        }
 
         val lines = availableHelp(sender, categoryId)
         val totalPages = maxOf(1, (lines.size + PAGE_SIZE - 1) / PAGE_SIZE)
-
-        if (arg != null && matchedCategory == null && pageArg == null) {
-            plugin.langEngine.sendRaw(sender, "<#FF6B6B>× 未知帮助主题或无效页码：<#D7DEE8>$rawArg</#D7DEE8></#FF6B6B>")
-            return
-        }
-
         val page = (pageArg ?: 1).coerceIn(1, totalPages)
         val start = (page - 1) * PAGE_SIZE
         val pageLines = lines.subList(start, minOf(start + PAGE_SIZE, lines.size))

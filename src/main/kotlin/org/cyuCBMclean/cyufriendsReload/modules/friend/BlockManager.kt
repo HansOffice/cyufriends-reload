@@ -25,12 +25,7 @@ class BlockManager(private val repository: BlockRepository) {
     }
 
     fun isBlocked(user: String, target: String): Boolean {
-        blockCache.getIfPresent(user)?.let { return it.contains(target) }
-        val blocked = repository.isBlockedSync(user, target)
-        if (blocked) {
-            blockCache.put(user, ConcurrentHashMap.newKeySet<String>().apply { add(target) })
-        }
-        return blocked
+        return getBlocks(user).contains(target)
     }
 
     fun isBlockedStable(user: String, target: String): Boolean {
@@ -46,8 +41,7 @@ class BlockManager(private val repository: BlockRepository) {
     }
 
     suspend fun isBlockedStored(user: String, target: String): Boolean {
-        if (isBlocked(user, target)) return true
-        return repository.isBlocked(user, target)
+        return getBlocksStored(user).contains(target)
     }
 
     fun getBlocks(user: String): Set<String> {
@@ -58,7 +52,9 @@ class BlockManager(private val repository: BlockRepository) {
     }
 
     suspend fun getBlocksStored(user: String): Set<String> {
-        return blockCache.getIfPresent(user)?.toSet() ?: repository.getBlocks(user)
+        return blockCache.getIfPresent(user)?.toSet() ?: repository.getBlocks(user).also { stored ->
+            blockCache.put(user, ConcurrentHashMap.newKeySet<String>().apply { addAll(stored) })
+        }
     }
 
     fun getBlocksStoredSync(user: String): Set<String> {

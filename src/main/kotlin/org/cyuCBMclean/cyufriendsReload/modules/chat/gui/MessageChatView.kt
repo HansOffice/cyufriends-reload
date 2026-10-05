@@ -4,6 +4,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.cyuCBMclean.cyufriendsReload.CyufriendsReload
+import org.cyuCBMclean.cyufriendsReload.core.config.ColorCompat
 import org.cyuCBMclean.cyufriendsReload.extension.onlineScope
 import org.cyuCBMclean.cyufriendsReload.extension.onlineServerName
 import org.cyuCBMclean.cyufriendsReload.extension.uid
@@ -60,7 +61,8 @@ class MessageChatView(
         val item = template.render(player, replacements)
         val meta = item.itemMeta ?: return item
         if (meta.hasLore()) {
-            meta.lore = meta.lore?.map { it.replace("%content%", GuiTextFormatter.renderUserText(element.content)) }
+            val updated = meta.lore?.map { it.replace("%content%", GuiTextFormatter.renderUserText(element.content)) } ?: emptyList()
+            ColorCompat.applyGuiLoreLines(meta, updated)
         }
         item.itemMeta = meta
         return if (template.hasHeadSource()) item else GuiHeads.applyForUid(item, element.senderUid, player)
