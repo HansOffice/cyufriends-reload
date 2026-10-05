@@ -302,7 +302,7 @@ class ProfileManager(
     fun cachedProfileCount(): Int = profileCache.asMap().size
 
     private suspend fun profile(uid: String): ProfileData {
-        return getProfile(uid) ?: loadProfile(uid)
+        return profileCache.getIfPresent(uid) ?: loadProfile(uid)
     }
 
     private fun String?.normalizedLength(): Int {

@@ -32,7 +32,7 @@ class GroupMoveView(
     override fun mapElement(element: String): ItemStack {
         val template = itemsMap['G'] ?: return ItemStack(Material.CHEST)
         val count = module.manager.friendsInGroup(player.uid, element).size
-        return template.render(player, mapOf("%group_name%" to element, "%group_count%" to count.toString())).clone()
+        return template.render(player, mapOf("%group_name%" to element, "%group_count%" to count.toString()))
     }
 
     override fun onElementClick(element: String, clickType: CyuClickType) {

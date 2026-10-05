@@ -50,7 +50,7 @@ class SentRequestsView(
         val template = itemsMap['S'] ?: return ItemStack(Material.PLAYER_HEAD)
         val receiverName = CyuIdHook.getName(element.receiverUid) ?: "未知玩家"
         val replacements = replacements(element, receiverName)
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         val meta = baseItem.itemMeta
         if (meta != null && meta.hasLore()) {
             val preview = FriendRequestNotes.preview(CyufriendsReload.instance, element.note)

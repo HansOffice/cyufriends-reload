@@ -51,7 +51,7 @@ class GroupBatchMoveView(
                 "%group_name%" to element,
                 "%source_group%" to sourceGroup
             )
-        ).clone()
+        )
     }
 
     override fun onElementClick(element: String, clickType: CyuClickType) {

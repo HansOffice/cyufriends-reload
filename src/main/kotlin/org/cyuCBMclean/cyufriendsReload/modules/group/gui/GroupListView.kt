@@ -38,7 +38,7 @@ class GroupListView(
                 "%group_count%" to element.second.toString(),
                 "%group_pin_state%" to if (isPinned(element.first)) "置顶显示" else "普通显示"
             )
-        ).clone()
+        )
     }
 
     override fun onElementClick(element: Pair<String, Int>, clickType: CyuClickType) {

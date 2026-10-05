@@ -81,7 +81,7 @@ class WallPendingView(
             "%visibility%" to element.visibility.displayName,
             "%pending_comment_count%" to element.pendingCommentCount.toString()
         )
-        val item = template.render(player, replacements).clone()
+        val item = template.render(player, replacements)
         val meta = item.itemMeta ?: return item
         if (meta.hasLore()) {
             meta.lore = meta.lore?.map { line -> line.replace("%content%", GuiTextFormatter.renderUserText(element.content)) }

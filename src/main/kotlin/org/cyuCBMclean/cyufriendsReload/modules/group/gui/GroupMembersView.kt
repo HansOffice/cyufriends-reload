@@ -37,7 +37,7 @@ class GroupMembersView(
             "%group_name%" to groupName,
             "%uid%" to element
         )
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         return if (template.hasHeadSource()) baseItem else GuiHeads.applyForUid(baseItem, element, player)
     }
 

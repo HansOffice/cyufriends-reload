@@ -1,6 +1,5 @@
 package org.cyuCBMclean.cyufriendsReload.modules.profile.gui
 
-import kotlinx.coroutines.runBlocking
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -96,12 +95,8 @@ class NotificationCenterView(
 
         val tasks = buildList {
             if (friendModule != null) {
-                val requests = friendModule.requestManager.getRequestEntries(uid).ifEmpty {
-                    runBlocking { friendModule.requestManager.getRequestsFromDbForSync(uid) }
-                }
-                val sentRequests = friendModule.requestManager.getSentRequestEntries(uid).ifEmpty {
-                    runBlocking { friendModule.requestManager.getSentRequestsFromDbForSync(uid) }
-                }
+                val requests = friendModule.requestManager.getRequestEntries(uid)
+                val sentRequests = friendModule.requestManager.getSentRequestEntries(uid)
                 val recommendations = friendModule.friendManager.recommendationsStoredSync(uid, 12)
                 val birthdays = profileModule.manager.birthdayEntriesSync(friendUids).take(10)
 
@@ -284,7 +279,7 @@ class NotificationCenterView(
             "%task_hint%" to element.actionHint,
             "%task_uid%" to (element.uid ?: player.uid)
         )
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         val meta = baseItem.itemMeta ?: return baseItem
         if (meta.hasLore()) {
             meta.lore = meta.lore?.map { it.replace("%task_preview%", GuiTextFormatter.renderUserText(element.preview)) }

@@ -26,6 +26,7 @@ import org.cyuCBMclean.cyufriendsReload.modules.friend.FriendModule
 import org.cyuCBMclean.cyufriendsReload.modules.group.GroupModule
 import org.cyuCBMclean.cyufriendsReload.modules.proxy.ProxyModule
 import org.cyuCBMclean.cyufriendsReload.modules.social.SocialModule
+import org.cyuCBMclean.cyufriendsReload.ui.compat.ExternalMenuItems
 import org.cyuCBMclean.cyufriendsReload.ui.compat.GuiHeads
 import org.cyuCBMclean.cyufriendsReload.ui.layout.GuiLoader
 import org.cyuCBMclean.cyufriendsReload.ui.view.GuiListener
@@ -108,6 +109,7 @@ class CyufriendsReload : JavaPlugin() {
             auditGuiResources()
             Settings.reload(config)
             GuiHeads.reload()
+            ExternalMenuItems.reload()
 
             langEngine = LanguageEngine(this)
             langEngine.initialize()
@@ -153,6 +155,7 @@ class CyufriendsReload : JavaPlugin() {
             DebugLogger.reload()
             Settings.reload(config)
             GuiHeads.reload()
+            ExternalMenuItems.reload()
             if (::langEngine.isInitialized) langEngine.reload()
             if (::soundEngine.isInitialized) soundEngine.reload()
             syncBundledGuiResources()

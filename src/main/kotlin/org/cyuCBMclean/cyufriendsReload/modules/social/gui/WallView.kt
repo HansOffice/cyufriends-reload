@@ -136,7 +136,7 @@ class WallView(
             "%like_state%" to if (element.id in likedWallIds) "已点赞" else "未点赞",
             "%unread_state%" to if (element.id in unreadWallIds) "未读更新" else "已查看"
         ) + actionLoreReplacements(element)
-        val item = template.render(player, replacements).clone()
+        val item = template.render(player, replacements)
         val meta = item.itemMeta ?: return item
         if (meta.hasLore()) {
             meta.lore = meta.lore

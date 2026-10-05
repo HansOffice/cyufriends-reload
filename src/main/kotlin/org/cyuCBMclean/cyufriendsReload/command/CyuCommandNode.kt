@@ -76,21 +76,39 @@ class CyuCommandNode(val name: String) {
             return emptyList()
         }
 
+        if (requirePlayer && !context.isPlayer) {
+            return emptyList()
+        }
+
         if (context.args.size > 1) {
             val subArg = context.args[0].lowercase()
             val subNode = subNodes[subArg]
             if (subNode != null) {
+                if (subNode.permission != null && !context.sender.hasPermission(subNode.permission!!)) {
+                    return emptyList()
+                }
+                if (subNode.requirePlayer && !context.isPlayer) {
+                    return emptyList()
+                }
                 val subContext = CommandContext(context.sender, context.args.drop(1))
                 return subNode.completeNode(subContext, "$path $subArg")
             }
-            return emptyList()
+            val current = context.args.last()
+            return tabAction?.invoke(context)?.filter { it.startsWith(current, ignoreCase = true) } ?: emptyList()
         }
 
         if (context.args.size == 1) {
-            val current = context.args[0].lowercase()
-            val subCompletions = subNodes.keys.filter { it.startsWith(current) }
-            val customCompletions = tabAction?.invoke(context)?.filter { it.lowercase().startsWith(current) } ?: emptyList()
-            return subCompletions + customCompletions
+            val current = context.args[0]
+            val currentLower = current.lowercase()
+            val subCompletions = subNodes.entries
+                .filter { (key, node) ->
+                    key.startsWith(currentLower) &&
+                        (node.permission == null || context.sender.hasPermission(node.permission!!)) &&
+                        (!node.requirePlayer || context.isPlayer)
+                }
+                .map { it.key }
+            val customCompletions = tabAction?.invoke(context)?.filter { it.startsWith(current, ignoreCase = true) } ?: emptyList()
+            return (subCompletions + customCompletions).distinct()
         }
 
         return tabAction?.invoke(context) ?: emptyList()

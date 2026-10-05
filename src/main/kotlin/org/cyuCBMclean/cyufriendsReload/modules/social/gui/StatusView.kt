@@ -99,7 +99,7 @@ class StatusView(
             "%like_state%" to if (element.id in likedStatusIds) "已点赞" else "未点赞",
             "%unread_state%" to if (element.id in unreadStatusIds) "未读更新" else "已查看"
         ) + actionLoreReplacements(element)
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         val meta = baseItem.itemMeta ?: return baseItem
 
         if (meta.hasLore()) {

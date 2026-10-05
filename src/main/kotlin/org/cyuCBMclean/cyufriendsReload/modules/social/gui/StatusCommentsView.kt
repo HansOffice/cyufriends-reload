@@ -58,7 +58,7 @@ class StatusCommentsView(
             "%time%" to dateFormat.format(Date(element.timestamp)),
             "%comment_action_hint_mm%" to if (canDelete) "<white>右键</white> <gray>删除评论</gray>" else "<white>右键</white> <gray>查看作者资料</gray>"
         )
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         val meta = baseItem.itemMeta ?: return baseItem
         if (meta.hasLore()) {
             meta.lore = meta.lore?.map { it.replace("%content%", GuiTextFormatter.renderUserText(element.content)) }

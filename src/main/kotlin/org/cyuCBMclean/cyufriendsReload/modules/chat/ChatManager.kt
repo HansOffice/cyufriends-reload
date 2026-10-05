@@ -139,7 +139,7 @@ class ChatManager(
     suspend fun getConversation(uid1: String, uid2: String, limit: Int = 45): List<ChatMessage> {
         val key = conversationKey(uid1, uid2)
         val cached = conversationCache.getIfPresent(key)
-        if (cached != null && cached.size <= limit) return cached
+        if (cached != null && cached.size >= limit) return cached.take(limit)
         return repository.getConversation(uid1, uid2, limit).also {
             conversationCache.put(key, it)
             DebugLogger.debug(2) { "私聊会话缓存回填: key=$key count=${it.size} limit=$limit source=db" }
@@ -147,7 +147,9 @@ class ChatManager(
     }
 
     suspend fun getConversationSummaries(uid: String, limit: Int = 35): List<ChatConversationSummary> {
-        conversationSummaryCache.getIfPresent(uid)?.let { return it.take(limit.coerceAtLeast(1)) }
+        conversationSummaryCache.getIfPresent(uid)?.let { cached ->
+            if (cached.size >= limit) return cached.take(limit)
+        }
         return repository.getConversationSummaries(uid, limit).also {
             conversationSummaryCache.put(uid, it)
             DebugLogger.debug(2) { "私聊摘要缓存回填: uid=$uid count=${it.size} limit=$limit source=db" }
@@ -155,7 +157,9 @@ class ChatManager(
     }
 
     fun getConversationSummariesSync(uid: String, limit: Int = 35): List<ChatConversationSummary> {
-        conversationSummaryCache.getIfPresent(uid)?.let { return it.take(limit.coerceAtLeast(1)) }
+        conversationSummaryCache.getIfPresent(uid)?.let { cached ->
+            if (cached.size >= limit) return cached.take(limit)
+        }
         return repository.getConversationSummariesSync(uid, limit).also {
             conversationSummaryCache.put(uid, it)
             DebugLogger.debug(2) { "私聊摘要缓存回填: uid=$uid count=${it.size} limit=$limit source=db-sync" }

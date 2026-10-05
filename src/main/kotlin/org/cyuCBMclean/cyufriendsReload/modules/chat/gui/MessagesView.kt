@@ -61,7 +61,7 @@ class MessagesView(
             "%online_scope%" to module.plugin.onlineScope(element.partnerUid),
             "%server_name%" to module.plugin.onlineServerName(element.partnerUid)
         )
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         val meta = baseItem.itemMeta ?: return baseItem
 
         if (meta.hasLore()) {

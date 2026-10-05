@@ -60,7 +60,7 @@ private var cachedComments: List<WallComment> = emptyList()
             "%approve_state%" to if (element.approved) "已通过" else "待审核",
             "%comment_action_hint_mm%" to actionHint(element)
         )
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         val meta = baseItem.itemMeta ?: return baseItem
         if (meta.hasLore()) {
             meta.lore = meta.lore?.map { it.replace("%content%", GuiTextFormatter.renderUserText(element.content)) }

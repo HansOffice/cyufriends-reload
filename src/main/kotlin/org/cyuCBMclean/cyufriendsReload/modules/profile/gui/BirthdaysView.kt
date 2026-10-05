@@ -63,7 +63,7 @@ class BirthdaysView(
             "%server_name%" to plugin.onlineServerName(element.uid),
             "%birthday_middle_action%" to middleActionName()
         )
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         return if (template.hasHeadSource()) baseItem else GuiHeads.applyForUid(baseItem, element.uid, player)
     }
 

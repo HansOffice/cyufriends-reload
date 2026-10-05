@@ -58,7 +58,7 @@ class OnlinePlayersView(
     override fun mapElement(element: OnlineEntry): ItemStack {
         val template = itemsMap['O'] ?: return ItemStack(Material.PLAYER_HEAD)
         val replacements = replacements(element)
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         return if (template.hasHeadSource()) {
             baseItem
         } else {

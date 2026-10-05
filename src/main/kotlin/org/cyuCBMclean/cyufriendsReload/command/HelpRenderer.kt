@@ -10,6 +10,7 @@ import org.cyuCBMclean.cyufriendsReload.CyufriendsReload
 object HelpRenderer {
 
     private const val PAGE_SIZE = 8
+    private val miniMessage = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()
 
     fun availableCategories(sender: CommandSender): List<HelpCategory> {
         val plugin = CyufriendsReload.instance
@@ -116,6 +117,6 @@ object HelpRenderer {
     }
 
     private fun deserialize(text: String): Component {
-        return runCatching { net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(text) }.getOrElse { Component.text(text) }
+        return runCatching { miniMessage.deserialize(text) }.getOrElse { Component.text(text) }
     }
 }

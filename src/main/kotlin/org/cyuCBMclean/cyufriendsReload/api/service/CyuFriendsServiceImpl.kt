@@ -96,7 +96,6 @@ class CyuFriendsServiceImpl(
         return friendModule()
             ?.requestManager
             ?.getRequestEntries(uid)
-            ?.ifEmpty { runBlocking { friendModule()?.requestManager?.getRequestsFromDbForSync(uid) ?: emptyList() } }
             ?.map { RequestSnapshot(it.senderUid, it.receiverUid, it.note, it.createdAt) }
             ?: emptyList()
     }
@@ -105,7 +104,6 @@ class CyuFriendsServiceImpl(
         return friendModule()
             ?.requestManager
             ?.getSentRequestEntries(uid)
-            ?.ifEmpty { runBlocking { friendModule()?.requestManager?.getSentRequestsFromDbForSync(uid) ?: emptyList() } }
             ?.map { RequestSnapshot(it.senderUid, it.receiverUid, it.note, it.createdAt) }
             ?: emptyList()
     }

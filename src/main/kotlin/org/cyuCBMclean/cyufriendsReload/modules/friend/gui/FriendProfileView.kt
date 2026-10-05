@@ -47,7 +47,7 @@ class FriendProfileView(
                 return@forEach
             }
 
-            val item = template.render(player, replacements).clone()
+            val item = template.render(player, replacements)
             val result = if (!template.hasHeadSource() && isPlayerHead(item)) {
                 GuiHeads.applyForUid(item, friendUid, player)
             } else {

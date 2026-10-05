@@ -81,7 +81,7 @@ class WallCommentPendingView(
             "%wall_id%" to wallId.toString(),
             "%time%" to dateFormat.format(Date(element.timestamp))
         )
-        val item = template.render(player, replacements).clone()
+        val item = template.render(player, replacements)
         val meta = item.itemMeta ?: return item
         if (meta.hasLore()) {
             meta.lore = meta.lore?.map { line -> line.replace("%content%", GuiTextFormatter.renderUserText(element.content)) }

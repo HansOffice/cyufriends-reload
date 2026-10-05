@@ -90,10 +90,12 @@ class RequestManager(private val repository: RequestRepository) {
     }
 
     fun getRequestEntries(receiver: String): List<FriendRequestEntry> {
-        return incomingRequests.getIfPresent(receiver)
-            ?.values
-            ?.sortedByDescending(FriendRequestEntry::createdAt)
-            ?: emptyList()
+        incomingRequests.getIfPresent(receiver)?.let {
+            return it.values.sortedByDescending(FriendRequestEntry::createdAt)
+        }
+        val stored = repository.getRequestsSync(receiver)
+        incomingRequests.put(receiver, stored.associateByTo(ConcurrentHashMap(), FriendRequestEntry::senderUid))
+        return stored.sortedByDescending(FriendRequestEntry::createdAt)
     }
 
     fun getRequestEntry(receiver: String, sender: String): FriendRequestEntry? {
@@ -105,10 +107,12 @@ class RequestManager(private val repository: RequestRepository) {
     }
 
     fun getSentRequestEntries(sender: String): List<FriendRequestEntry> {
-        return outgoingRequests.getIfPresent(sender)
-            ?.values
-            ?.sortedByDescending(FriendRequestEntry::createdAt)
-            ?: emptyList()
+        outgoingRequests.getIfPresent(sender)?.let {
+            return it.values.sortedByDescending(FriendRequestEntry::createdAt)
+        }
+        val stored = repository.getSentRequestsSync(sender)
+        outgoingRequests.put(sender, stored.associateByTo(ConcurrentHashMap(), FriendRequestEntry::receiverUid))
+        return stored.sortedByDescending(FriendRequestEntry::createdAt)
     }
 
     fun getSentRequestEntry(sender: String, receiver: String): FriendRequestEntry? {

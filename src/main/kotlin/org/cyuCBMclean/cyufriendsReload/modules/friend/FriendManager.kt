@@ -1,4 +1,4 @@
-﻿package org.cyuCBMclean.cyufriendsReload.modules.friend
+package org.cyuCBMclean.cyufriendsReload.modules.friend
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import org.bukkit.Bukkit
@@ -103,25 +103,21 @@ class FriendManager(private val repository: FriendRepository) {
         val cached = friendCache.getIfPresent(uid)
         if (cached != null) return sort(cached.values)
         val stored = repository.getFriendsSync(uid)
-        if (stored.isNotEmpty()) {
-            val concurrentMap = ConcurrentHashMap<String, FriendData>()
-            stored.forEach { concurrentMap[it.friendUid] = it }
-            friendCache.put(uid, concurrentMap)
-            DebugLogger.debug(2) { "好友缓存回填: uid=$uid count=${stored.size} source=db-sync" }
-        }
+        val concurrentMap = ConcurrentHashMap<String, FriendData>()
+        stored.forEach { concurrentMap[it.friendUid] = it }
+        friendCache.put(uid, concurrentMap)
+        DebugLogger.debug(2) { "好友缓存回填: uid=$uid count=${stored.size} source=db-sync" }
         return sort(stored)
     }
 
     suspend fun getFriendEntriesStored(uid: String): List<FriendData> {
-        val cached = getFriendEntries(uid)
-        if (cached.isNotEmpty()) return cached
-        return sort(repository.getFriends(uid))
+        val cached = friendCache.getIfPresent(uid)
+        if (cached != null) return sort(cached.values)
+        return getFriendEntries(uid)
     }
 
     fun getFriendEntriesStoredSync(uid: String): List<FriendData> {
-        val cached = getFriendEntries(uid)
-        if (cached.isNotEmpty()) return cached
-        return sort(repository.getFriendsSync(uid))
+        return getFriendEntries(uid)
     }
 
     suspend fun getFriendByIndex(uid: String, index: Int): String? {

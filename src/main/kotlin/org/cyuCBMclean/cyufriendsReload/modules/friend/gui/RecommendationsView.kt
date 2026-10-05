@@ -52,7 +52,7 @@ class RecommendationsView(
     override fun mapElement(element: FriendRecommendation): ItemStack {
         val template = itemsMap['R'] ?: return ItemStack(Material.PLAYER_HEAD)
         val replacements = replacements(element)
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         return if (template.hasHeadSource()) baseItem else GuiHeads.applyForUid(baseItem, element.candidateUid, player)
     }
 

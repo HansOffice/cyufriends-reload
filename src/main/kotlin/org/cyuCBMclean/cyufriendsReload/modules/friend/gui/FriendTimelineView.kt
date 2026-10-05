@@ -68,7 +68,7 @@ class FriendTimelineView(
             "%timeline_action%" to actionHint(element.type),
             "%timeline_state%" to if (element.actorUid == player.uid) "由你发起" else "由对方发起"
         )
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         return if (template.hasHeadSource()) baseItem else GuiHeads.applyForUid(baseItem, element.actorUid, player)
     }
 

@@ -70,7 +70,6 @@ class DatabaseManager(private val plugin: Plugin) {
 
     fun <T> executeSync(block: Connection.() -> T): T {
         val shouldProfile = DebugLogger.isEnabled()
-        val caller = if (shouldProfile) resolveCaller() else "unknown"
         val startedAt = if (shouldProfile) System.nanoTime() else 0L
         dataSource.connection.use { connection ->
             try {
@@ -79,9 +78,9 @@ class DatabaseManager(private val plugin: Plugin) {
                 if (shouldProfile) {
                     val elapsedMs = (System.nanoTime() - startedAt) / 1_000_000
                     if (DebugLogger.isLevelEnabled(2)) {
-                        DebugLogger.debug(2) { "数据库操作: ${elapsedMs}ms <- $caller" }
+                        DebugLogger.debug(2) { "数据库操作: ${elapsedMs}ms <- ${resolveCaller()}" }
                     } else if (elapsedMs >= slowQueryThresholdMs()) {
-                        DebugLogger.warning("数据库操作偏慢: ${elapsedMs}ms <- $caller")
+                        DebugLogger.warning("数据库操作偏慢: ${elapsedMs}ms <- ${resolveCaller()}")
                     }
                 }
             }

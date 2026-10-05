@@ -77,7 +77,7 @@ class FriendsListView(
     override fun mapElement(element: String): ItemStack {
         val template = itemsMap['F'] ?: return ItemStack(Material.PLAYER_HEAD)
         val replacements = replacements(element)
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         return if (template.hasHeadSource()) baseItem else GuiHeads.applyForUid(baseItem, element, player)
     }
 

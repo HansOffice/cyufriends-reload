@@ -36,7 +36,65 @@ object GuiHeads {
     private val setProfileMethodCache: Cache<String, Method?> = Caffeine.newBuilder().maximumSize(64).build()
     private val texturesMethodCache: Cache<Class<*>, Method?> = Caffeine.newBuilder().maximumSize(32).build()
     private val skinMethodCache: Cache<Class<*>, Method?> = Caffeine.newBuilder().maximumSize(32).build()
+    private val propertiesMethodCache: Cache<Class<*>, Method?> = Caffeine.newBuilder().maximumSize(32).build()
+    private val profileFieldCache = ConcurrentHashMap<Class<*>, Field>()
     private val pendingSkinLookups = ConcurrentHashMap.newKeySet<String>()
+
+    private val playerProfileClass by lazy {
+        runCatching { Class.forName("org.bukkit.profile.PlayerProfile") }.getOrNull()
+    }
+    private val playerTexturesClass by lazy {
+        runCatching { Class.forName("org.bukkit.profile.PlayerTextures") }.getOrNull()
+    }
+    private val createPlayerProfileMethod by lazy {
+        runCatching { Bukkit.getServer().javaClass.getMethod("createPlayerProfile", UUID::class.java, String::class.java) }.getOrNull()
+    }
+    private val profileGetTexturesMethod by lazy {
+        playerProfileClass?.let { runCatching { it.getMethod("getTextures") }.getOrNull() }
+    }
+    private val texturesSetSkinMethod by lazy {
+        playerTexturesClass?.let { runCatching { it.getMethod("setSkin", URL::class.java) }.getOrNull() }
+    }
+    private val skullMetaSetProfileMethod by lazy {
+        playerProfileClass?.let { pClass ->
+            runCatching { SkullMeta::class.java.getMethod("setOwnerProfile", pClass) }.getOrNull()
+                ?: runCatching { SkullMeta::class.java.getMethod("setPlayerProfile", pClass) }.getOrNull()
+        }
+    }
+
+    private val gameProfileConstructor by lazy {
+        runCatching {
+            val profileClass = Class.forName("com.mojang.authlib.GameProfile")
+            profileClass.getConstructor(UUID::class.java, String::class.java)
+        }.getOrNull()
+    }
+    private val propertyConstructor by lazy {
+        runCatching {
+            val propertyClass = Class.forName("com.mojang.authlib.properties.Property")
+            propertyClass.getConstructor(String::class.java, String::class.java)
+        }.getOrNull()
+    }
+    private val gameProfileGetProperties by lazy {
+        runCatching {
+            val profileClass = Class.forName("com.mojang.authlib.GameProfile")
+            profileClass.getMethod("getProperties")
+        }.getOrNull()
+    }
+    private val propertyMapPut by lazy {
+        gameProfileGetProperties?.returnType?.let { clazz ->
+            runCatching { clazz.getMethod("put", Any::class.java, Any::class.java) }.getOrNull()
+        }
+    }
+
+    private val skinsRestorerStorageAndMethod by lazy {
+        runCatching {
+            val provider = Class.forName("net.skinsrestorer.api.SkinsRestorerProvider")
+            val api = provider.getMethod("get").invoke(null) ?: return@runCatching null
+            val storage = api.javaClass.getMethod("getPlayerStorage").invoke(api) ?: return@runCatching null
+            val method = storage.javaClass.getMethod("getSkinForPlayer", UUID::class.java, String::class.java)
+            storage to method
+        }.getOrNull()
+    }
 
     fun reload() {
         val size = Settings.guiHeadCacheSize
@@ -183,7 +241,10 @@ object GuiHeads {
         if (skinUrl != null) return true
 
         return runCatching {
-            val properties = profile.javaClass.getMethod("getProperties").invoke(profile) ?: return@runCatching false
+            val propertiesMethod = propertiesMethodCache.get(profile.javaClass) { type ->
+                runCatching { type.getMethod("getProperties") }.getOrNull()
+            } ?: return@runCatching false
+            val properties = propertiesMethod.invoke(profile) ?: return@runCatching false
             val values = properties.javaClass.getMethod("get", Any::class.java).invoke(properties, "textures")
             values != null && values.toString().isNotBlank() && values.toString() != "[]"
         }.getOrDefault(false)
@@ -252,13 +313,9 @@ object GuiHeads {
     }
 
     private fun resolveSkinsRestorerTexture(uuid: UUID?, name: String): String? {
+        val (storage, method) = skinsRestorerStorageAndMethod ?: return null
         return runCatching {
-            val provider = Class.forName("net.skinsrestorer.api.SkinsRestorerProvider")
-            val api = provider.getMethod("get").invoke(null)
-            val storage = api.javaClass.getMethod("getPlayerStorage").invoke(api)
-            val optional = storage.javaClass
-                .getMethod("getSkinForPlayer", UUID::class.java, String::class.java)
-                .invoke(storage, uuid ?: offlineUuid(name), name)
+            val optional = method.invoke(storage, uuid ?: offlineUuid(name), name) ?: return null
             val property = optional.javaClass.getMethod("orElse", Any::class.java).invoke(optional, null) ?: return null
             property.javaClass.getMethod("getValue").invoke(property) as? String
         }.getOrNull()?.trim()?.takeIf { it.isNotEmpty() }
@@ -269,44 +326,46 @@ object GuiHeads {
     }
 
     private fun applyPlayerProfile(meta: SkullMeta, url: String): Boolean {
+        val createProfile = createPlayerProfileMethod ?: return false
+        val getTextures = profileGetTexturesMethod ?: return false
+        val setSkin = texturesSetSkinMethod ?: return false
+        val setProfile = skullMetaSetProfileMethod ?: return false
         return runCatching {
-            val profileClass = Class.forName("org.bukkit.profile.PlayerProfile")
-            val texturesClass = Class.forName("org.bukkit.profile.PlayerTextures")
-            val profile = Bukkit.getServer().javaClass
-                .getMethod("createPlayerProfile", UUID::class.java, String::class.java)
-                .invoke(Bukkit.getServer(), UUID.randomUUID(), "")
-            val textures = profileClass.getMethod("getTextures").invoke(profile)
-            texturesClass.getMethod("setSkin", URL::class.java).invoke(textures, URL(url))
-            val method = runCatching { SkullMeta::class.java.getMethod("setOwnerProfile", profileClass) }
-                .getOrElse { SkullMeta::class.java.getMethod("setPlayerProfile", profileClass) }
-            method.invoke(meta, profile)
+            val profile = createProfile.invoke(Bukkit.getServer(), UUID.randomUUID(), "") ?: return false
+            val textures = getTextures.invoke(profile) ?: return false
+            setSkin.invoke(textures, URL(url))
+            setProfile.invoke(meta, profile)
             true
         }.getOrDefault(false)
     }
 
     private fun applyGameProfile(meta: SkullMeta, base64: String) {
+        val profileCtor = gameProfileConstructor ?: return
+        val propCtor = propertyConstructor ?: return
+        val getProps = gameProfileGetProperties ?: return
+        val putProp = propertyMapPut ?: return
         runCatching {
-            val profileClass = Class.forName("com.mojang.authlib.GameProfile")
-            val propertyClass = Class.forName("com.mojang.authlib.properties.Property")
-            val profile = profileClass.getConstructor(UUID::class.java, String::class.java).newInstance(UUID.randomUUID(), null)
-            val property = propertyClass.getConstructor(String::class.java, String::class.java).newInstance("textures", base64)
-            val properties = profileClass.getMethod("getProperties").invoke(profile)
-            properties.javaClass.getMethod("put", Any::class.java, Any::class.java).invoke(properties, "textures", property)
+            val profile = profileCtor.newInstance(UUID.randomUUID(), null)
+            val property = propCtor.newInstance("textures", base64)
+            val properties = getProps.invoke(profile)
+            putProp.invoke(properties, "textures", property)
             profileField(meta).set(meta, profile)
         }
     }
 
     private fun profileField(meta: SkullMeta): Field {
-        var type: Class<*>? = meta.javaClass
-        while (type != null) {
-            runCatching {
-                val field = type.getDeclaredField("profile")
-                field.isAccessible = true
-                return field
+        return profileFieldCache.computeIfAbsent(meta.javaClass) { clazz ->
+            var type: Class<*>? = clazz
+            while (type != null) {
+                val field = runCatching { type.getDeclaredField("profile") }.getOrNull()
+                if (field != null) {
+                    field.isAccessible = true
+                    return@computeIfAbsent field
+                }
+                type = type.superclass
             }
-            type = type.superclass
+            throw NoSuchFieldException("profile")
         }
-        throw NoSuchFieldException("profile")
     }
 
     private fun normalizeTextureUrl(value: String): String? {
@@ -345,9 +404,7 @@ object GuiHeads {
     private fun customModelDataOf(meta: org.bukkit.inventory.meta.ItemMeta?): String {
         if (meta == null) return ""
         return runCatching {
-            val hasMethod = meta.javaClass.getMethod("hasCustomModelData")
-            if (hasMethod.invoke(meta) != true) return ""
-            meta.javaClass.getMethod("getCustomModelData").invoke(meta)?.toString().orEmpty()
+            if (meta.hasCustomModelData()) meta.customModelData.toString() else ""
         }.getOrDefault("")
     }
 

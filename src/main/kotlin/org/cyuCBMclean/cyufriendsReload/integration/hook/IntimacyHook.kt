@@ -2,18 +2,26 @@ package org.cyuCBMclean.cyufriendsReload.integration.hook
 
 import org.bukkit.Bukkit
 
+import java.lang.reflect.Method
+import java.util.concurrent.ConcurrentHashMap
+
 object IntimacyHook {
 
     private val serviceClass: Class<*>? by lazy {
         runCatching { Class.forName("org.cyuCBMclean.cyufriendsIntimacy.api.CyuIntimacyService") }.getOrNull()
     }
 
+    private val snapshotMethod: Method? by lazy {
+        serviceClass?.let { runCatching { it.getMethod("snapshot", String::class.java, String::class.java) }.getOrNull() }
+    }
+
+    private val propertyMethodCache = ConcurrentHashMap<String, Method>()
+
     fun snapshot(firstUid: String, secondUid: String): IntimacySnapshot? {
         val service = service() ?: return null
+        val method = snapshotMethod ?: return null
         return runCatching {
-            val raw = service.javaClass.getMethod("snapshot", String::class.java, String::class.java)
-                .invoke(service, firstUid, secondUid)
-                ?: return null
+            val raw = method.invoke(service, firstUid, secondUid) ?: return null
             IntimacySnapshot(
                 points = raw.value<Int>("points") ?: 0,
                 levelName = raw.value<String>("levelName") ?: "好友",
@@ -32,11 +40,16 @@ object IntimacyHook {
     }
 
     private inline fun <reified T> Any.value(name: String): T? {
-        return runCatching {
-            val method = javaClass.methods.firstOrNull { it.name == "get${name.replaceFirstChar(Char::uppercaseChar)}" && it.parameterCount == 0 }
+        val cacheKey = "${javaClass.name}#$name"
+        val method = propertyMethodCache[cacheKey] ?: run {
+            val resolved = javaClass.methods.firstOrNull { it.name == "get${name.replaceFirstChar(Char::uppercaseChar)}" && it.parameterCount == 0 }
                 ?: javaClass.methods.firstOrNull { it.name == name && it.parameterCount == 0 }
-            method?.invoke(this) as? T
-        }.getOrNull()
+            if (resolved != null) {
+                propertyMethodCache[cacheKey] = resolved
+            }
+            resolved
+        } ?: return null
+        return runCatching { method.invoke(this) as? T }.getOrNull()
     }
 }
 

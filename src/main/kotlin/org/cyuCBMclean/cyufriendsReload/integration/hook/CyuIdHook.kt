@@ -226,10 +226,18 @@ object CyuIdHook {
         return invoke(methodName, parameterType, parameter) as? String
     }
 
+    private val methodCache = ConcurrentHashMap<String, java.lang.reflect.Method>()
+
     private fun invoke(methodName: String, parameterType: Class<*>, parameter: Any): Any? {
         val api = api() ?: return null
+        val cacheKey = "$methodName#${parameterType.name}"
+        val method = methodCache[cacheKey] ?: runCatching {
+            api.javaClass.getMethod(methodName, parameterType).also {
+                methodCache[cacheKey] = it
+            }
+        }.getOrNull() ?: return null
         return runCatching {
-            api.javaClass.getMethod(methodName, parameterType).invoke(api, parameter)
+            method.invoke(api, parameter)
         }.getOrNull()
     }
 }

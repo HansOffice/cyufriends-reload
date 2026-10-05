@@ -29,7 +29,7 @@ class BlacklistView(
         val template = itemsMap['B'] ?: return ItemStack(Material.PLAYER_HEAD)
         val targetName = CyuIdHook.getName(element) ?: "未知玩家"
         val replacements = mapOf("%target_name%" to targetName, "%target_uid%" to element)
-        val baseItem = template.render(player, replacements).clone()
+        val baseItem = template.render(player, replacements)
         return if (template.hasHeadSource()) baseItem else GuiHeads.applyForUid(baseItem, element, player)
     }
 

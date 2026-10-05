@@ -57,7 +57,7 @@ class MessageChatView(
             "%receiver_name%" to receiverName,
             "%time%" to time
         )
-        val item = template.render(player, replacements).clone()
+        val item = template.render(player, replacements)
         val meta = item.itemMeta ?: return item
         if (meta.hasLore()) {
             meta.lore = meta.lore?.map { it.replace("%content%", GuiTextFormatter.renderUserText(element.content)) }

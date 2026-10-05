@@ -8,6 +8,8 @@ import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.inventory.meta.ItemMeta
 
+import java.lang.reflect.Method
+
 object ColorCompat {
 
     val rgbSupported: Boolean by lazy {
@@ -23,6 +25,22 @@ object ColorCompat {
         .build()
     private val legacyNearest = LegacyComponentSerializer.legacySection()
 
+    private val displayNameMethod: Method? by lazy {
+        ItemMeta::class.java.methods.firstOrNull {
+            it.name == "displayName" &&
+                it.parameterTypes.size == 1 &&
+                Component::class.java.isAssignableFrom(it.parameterTypes[0])
+        }
+    }
+
+    private val loreMethod: Method? by lazy {
+        ItemMeta::class.java.methods.firstOrNull {
+            it.name == "lore" &&
+                it.parameterTypes.size == 1 &&
+                List::class.java.isAssignableFrom(it.parameterTypes[0])
+        }
+    }
+
     fun serialize(component: Component): String {
         return if (rgbSupported) legacyRgb.serialize(component) else legacyNearest.serialize(component)
     }
@@ -36,11 +54,7 @@ object ColorCompat {
     }
 
     fun renderGuiMiniMessage(miniMessage: MiniMessage, raw: String, vararg placeholders: TagResolver): String {
-        return runCatching {
-            legacyNearest.serialize(miniMessage.deserialize(raw, *placeholders))
-        }.getOrElse {
-            ChatColor.translateAlternateColorCodes('&', raw)
-        }
+        return renderMiniMessage(miniMessage, raw, *placeholders)
     }
 
     fun parseMiniMessage(miniMessage: MiniMessage, raw: String, vararg placeholders: TagResolver): Component? {
@@ -51,12 +65,8 @@ object ColorCompat {
 
     fun applyGuiDisplayName(meta: ItemMeta, component: Component): Boolean {
         if (!rgbSupported) return false
+        val method = displayNameMethod ?: return false
         return runCatching {
-            val method = meta.javaClass.methods.firstOrNull { method ->
-                method.name == "displayName" &&
-                    method.parameterTypes.size == 1 &&
-                    method.parameterTypes[0].isAssignableFrom(Component::class.java)
-            } ?: return false
             method.invoke(meta, component)
             true
         }.getOrDefault(false)
@@ -64,12 +74,8 @@ object ColorCompat {
 
     fun applyGuiLore(meta: ItemMeta, components: List<Component>): Boolean {
         if (!rgbSupported) return false
+        val method = loreMethod ?: return false
         return runCatching {
-            val method = meta.javaClass.methods.firstOrNull { method ->
-                method.name == "lore" &&
-                    method.parameterTypes.size == 1 &&
-                    method.parameterTypes[0].isAssignableFrom(List::class.java)
-            } ?: return false
             method.invoke(meta, components)
             true
         }.getOrDefault(false)
