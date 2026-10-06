@@ -101,6 +101,6 @@ mvn package -Plegacy -DskipTests
 ```
 
 构建产物位于：
-- `target/cyufriends-reload-paper-1.1.6.jar`
-- `target/cyufriends-reload-folia-1.1.6.jar`
-- `target/cyufriends-reload-legacy-1.1.6.jar`
+- `target/cyufriends-reload-paper-1.1.7.jar`
+- `target/cyufriends-reload-folia-1.1.7.jar`
+- `target/cyufriends-reload-legacy-1.1.7.jar`

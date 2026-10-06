@@ -14,7 +14,7 @@
 # gui/*.yml       - 界面布局与动作
 #
 # 配置版本，请不要手动降低版本号
-config-version: 116
+config-version: 117
 
 # 配置布局协议版本，结构调整时自增
 config-layout: 1
