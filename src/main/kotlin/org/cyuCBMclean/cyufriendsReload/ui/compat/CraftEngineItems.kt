@@ -122,27 +122,27 @@ object CraftEngineItems {
 
     private fun buildDefinition(definition: Any, context: Any?, enginePlayer: Any?): ItemStack? {
         if (context != null) {
-            runCatching { buildBukkitItemContextAmount?.invoke(definition, context, 1) as? ItemStack }
-                .getOrNull()?.clone()?.let { return it }
-            runCatching { buildBukkitItemContext?.invoke(definition, context) as? ItemStack }
-                .getOrNull()?.clone()?.let { return it }
+            runCatching { buildBukkitItemContextAmount?.invoke(definition, context, 1) }
+                .getOrNull()?.toBukkitItem()?.let { return it }
+            runCatching { buildBukkitItemContext?.invoke(definition, context) }
+                .getOrNull()?.toBukkitItem()?.let { return it }
             runCatching { buildItemContextAmount?.invoke(definition, context, 1) }
                 .getOrNull()?.toBukkitItem()?.let { return it }
         }
 
         if (enginePlayer != null) {
-            runCatching { buildBukkitItemEnginePlayer?.invoke(definition, enginePlayer) as? ItemStack }
-                .getOrNull()?.clone()?.let { return it }
+            runCatching { buildBukkitItemEnginePlayer?.invoke(definition, enginePlayer) }
+                .getOrNull()?.toBukkitItem()?.let { return it }
             runCatching { buildItemEnginePlayer?.invoke(definition, enginePlayer) }
                 .getOrNull()?.toBukkitItem()?.let { return it }
         }
 
-        runCatching { buildBukkitItemNoArg?.invoke(definition) as? ItemStack }
-            .getOrNull()?.clone()?.let { return it }
-        runCatching { buildItemStackAmount?.invoke(definition, 1) as? ItemStack }
-            .getOrNull()?.clone()?.let { return it }
-        return runCatching { buildItemStackNoArg?.invoke(definition) as? ItemStack }
-            .getOrNull()?.clone()
+        runCatching { buildBukkitItemNoArg?.invoke(definition) }
+            .getOrNull()?.toBukkitItem()?.let { return it }
+        runCatching { buildItemStackAmount?.invoke(definition, 1) }
+            .getOrNull()?.toBukkitItem()?.let { return it }
+        return runCatching { buildItemStackNoArg?.invoke(definition) }
+            .getOrNull()?.toBukkitItem()
     }
 
     private fun buildFromManager(keyObject: Any, enginePlayer: Any?): ItemStack? {
@@ -151,16 +151,19 @@ object CraftEngineItems {
             .getOrNull()?.toBukkitItem()
             ?: runCatching { managerCreateWrapped?.invoke(manager, keyObject, enginePlayer) }
                 .getOrNull()?.toBukkitItem()
-            ?: runCatching { managerBuildItemStack?.invoke(manager, keyObject, enginePlayer) as? ItemStack }
-                .getOrNull()?.clone()
+            ?: runCatching { managerBuildItemStack?.invoke(manager, keyObject, enginePlayer) }
+                .getOrNull()?.toBukkitItem()
     }
 
     private fun Any.toBukkitItem(): ItemStack? {
-        return when (this) {
-            is ItemStack -> this.clone()
-            else -> runCatching { getBukkitItem?.invoke(this) as? ItemStack }.getOrNull()?.clone()
-                ?: runCatching { platformItem?.invoke(this) as? ItemStack }.getOrNull()?.clone()
-        }
+        if (this is ItemStack) return this.clone()
+        val getBukkit = runCatching { javaClass.getMethod("getBukkitItem").invoke(this) as? ItemStack }.getOrNull()
+        if (getBukkit != null) return getBukkit.clone()
+        val getItem = runCatching { javaClass.getMethod("getItem").invoke(this) as? ItemStack }.getOrNull()
+        if (getItem != null) return getItem.clone()
+        val platItem = runCatching { javaClass.getMethod("platformItem").invoke(this) as? ItemStack }.getOrNull()
+        if (platItem != null) return platItem.clone()
+        return null
     }
 
     private fun buildContext(enginePlayer: Any?): Any? {
